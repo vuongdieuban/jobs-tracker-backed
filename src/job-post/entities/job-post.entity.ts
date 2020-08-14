@@ -1,11 +1,9 @@
 
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { AbstractEntity } from 'src/common/abstract.entity';
+import { Column, Entity } from 'typeorm';
 
 @Entity()
-export class JobPostEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class JobPostEntity extends AbstractEntity {
   @Column()
   companyName: string;
 
