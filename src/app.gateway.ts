@@ -20,7 +20,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(private readonly jobpostStateService: JobPostStateService) {
     this.jobpostStateService.data$.subscribe((data) => {
-      this.logger.log(`Rcv data in socket gateway ${data}`);
+      this.logger.log(`Rcv data in socket gateway: ${data}`);
       // go thru connectedSockets and push info to client
     });
   }
