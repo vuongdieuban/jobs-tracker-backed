@@ -1,5 +1,11 @@
 import { Logger } from '@nestjs/common';
-import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
+import {
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  SubscribeMessage,
+  WebSocketGateway,
+  WsResponse
+} from '@nestjs/websockets';
 
 @WebSocketGateway()
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
