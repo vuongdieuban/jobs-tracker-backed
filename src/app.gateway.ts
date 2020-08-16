@@ -11,6 +11,7 @@ import {
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger: Logger = new Logger('AppGateway');
 
+
   handleDisconnect(client: any) {
     this.logger.log('Client Disconnected');
   }
