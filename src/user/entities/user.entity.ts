@@ -9,9 +9,9 @@ export class UserEntity extends AbstractEntity {
   @Column()
   lastName: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ unique: true })
   googleId: string;
 }
