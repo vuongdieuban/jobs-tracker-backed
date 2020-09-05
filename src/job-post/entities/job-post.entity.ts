@@ -1,4 +1,3 @@
-import { type } from 'os';
 import { AbstractEntity } from 'src/common/abstract.entity';
 import { JobApplicationEntity } from 'src/job-application/entities/job-application.entity';
 import { PlatformEntity } from 'src/platform/entities/platform.entity';

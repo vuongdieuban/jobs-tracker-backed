@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppGateway } from './app.gateway';
-import { DatabaseConnectionService } from './database-connection/database-connection.service';
+import { DatabaseConnectionService } from './database-config/database-connection.service';
 import { JobApplicationStatusModule } from './job-application-status/job-application-status.module';
 import { JobApplicationModule } from './job-application/job-application.module';
 import { JobPostModule } from './job-post/job-post.module';
