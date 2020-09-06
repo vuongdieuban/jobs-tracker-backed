@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JobPostDto } from './dto/job-post.dto';
 import { JobPostEntity } from './entities/job-post.entity';
-import { JobPostStateService } from './job-post-state.service';
 
 @Injectable()
 export class JobPostService {
