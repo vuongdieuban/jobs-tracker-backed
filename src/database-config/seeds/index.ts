@@ -1,7 +1,8 @@
-import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
-import { JobApplicationEntity } from 'src/job-application/entities/job-application.entity';
 import { createConnection } from 'typeorm';
 import { applicationStatusSeed } from './application-status';
+import { jobPostsSeed } from './job-post';
+import { platformSeed } from './platform';
+import { userSeed } from './user';
 
 export async function runDbSeed() {
   const connection = await createConnection({
@@ -15,8 +16,12 @@ export async function runDbSeed() {
     entities: ['dist/**/*.entity.js']
   });
 
-  const jobApplicationRepo = connection.getRepository<JobApplicationEntity>(JobApplicationEntity);
-  const applicationStatuses = await applicationStatusSeed(connection);
+  const [status, user, jobPosts, platform] = await Promise.all([
+    applicationStatusSeed(connection),
+    userSeed(connection),
+    jobPostsSeed(connection),
+    platformSeed(connection)
+  ]);
 
   await connection.close();
 }
