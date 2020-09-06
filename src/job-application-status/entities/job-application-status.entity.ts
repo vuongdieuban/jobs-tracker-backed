@@ -9,7 +9,7 @@ export class JobApplicationStatusEntity extends AbstractEntity {
 
   @OneToMany(
     (type) => JobApplicationEntity,
-    (jobApplication) => jobApplication.applicationStatus
+    (jobApplication) => jobApplication.status
   )
   jobApplications: JobApplicationEntity[];
 }
