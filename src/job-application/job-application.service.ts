@@ -118,13 +118,13 @@ export class JobApplicationService {
     desiredApplicationId: string,
     updatedApplications: JobApplicationEntity[]
   ): Promise<ReorderApplicationResponseDto> {
-    await this.jobApplicationRepo.save(updatedApplications);
-    const updatedApplication = updatedApplications.find((a) => a.id === desiredApplicationId);
+    const updatedData = await this.jobApplicationRepo.save(updatedApplications);
+    const application = updatedData.find((a) => a.id === desiredApplicationId);
 
     return {
-      applicationId: updatedApplication.id,
-      statusId: updatedApplication.status.id,
-      position: updatedApplication.statusDisplayPosition
+      applicationId: application.id,
+      statusId: application.status.id,
+      position: application.statusDisplayPosition
     };
   }
 }
