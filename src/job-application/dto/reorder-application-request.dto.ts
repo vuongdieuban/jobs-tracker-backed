@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDefined, IsNumber, IsString } from 'class-validator';
 
-export class ReorderApplicationDto {
+export class ReorderApplicationRequestDto {
   @ApiProperty({ description: 'updated display position for application status' })
   @IsNumber()
   @IsDefined()
