@@ -13,9 +13,33 @@ export async function jobApplicationsSeed(
   const data = [
     {
       applicationStatusPositition: 0,
-      user,
       applicationStatus: status[0],
-      jobPost: jobPosts[0]
+      jobPost: jobPosts[0],
+      user
+    },
+    {
+      applicationStatusPositition: 1,
+      applicationStatus: status[0],
+      jobPost: jobPosts[1],
+      user
+    },
+    {
+      applicationStatusPositition: 2,
+      applicationStatus: status[0],
+      jobPost: jobPosts[2],
+      user
+    },
+    {
+      applicationStatusPositition: 0,
+      applicationStatus: status[1],
+      jobPost: jobPosts[3],
+      user
+    },
+    {
+      applicationStatusPositition: 1,
+      applicationStatus: status[1],
+      jobPost: jobPosts[4],
+      user
     }
   ];
 
