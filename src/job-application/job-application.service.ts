@@ -5,10 +5,12 @@ import { Repository } from 'typeorm';
 import { ReorderApplicationRequestDto } from './dto/reorder-application-request.dto';
 import { ReorderApplicationResponseDto } from './dto/reorder-application-response.dto';
 import { JobApplicationEntity } from './entities/job-application.entity';
+import { ReorderApplicationsService } from './reorder-applications.service';
 
 @Injectable()
 export class JobApplicationService {
   constructor(
+    private readonly reorderService: ReorderApplicationsService,
     @InjectRepository(JobApplicationEntity)
     private readonly jobApplicationRepo: Repository<JobApplicationEntity>,
     @InjectRepository(JobApplicationStatusEntity)
@@ -49,65 +51,59 @@ export class JobApplicationService {
 
     if (application.status.id !== statusId) {
       console.log('item inserted');
-      return this.itemInsertedIntoList(application, desiredPosition, statusId);
+      return this.applicationStatusChanged(application, desiredPosition, statusId);
     }
 
     if (desiredPosition > application.statusDisplayPosition) {
       console.log('item move down');
-      return this.itemMoveDown(application, desiredPosition);
+      return this.applicationMoveDown(application, desiredPosition);
     } else {
       console.log('item move up');
-      return this.itemMoveUp(application, desiredPosition);
+      return this.applicationMoveUp(application, desiredPosition);
     }
   }
 
-  private async itemMoveUp(
+  private async applicationMoveUp(
     application: JobApplicationEntity,
     desiredPosition: number
   ): Promise<ReorderApplicationResponseDto> {
     const statusId = application.status.id;
-    const currentPosition = application.statusDisplayPosition;
-    const items = await this.jobApplicationRepo.find({
-      relations: ['status'],
-      where: { status: { id: statusId } }
+    const allApplications = await this.getApplicationsByStatusId(statusId);
+    const updatedApplications = this.reorderService.applicationMoveUp({
+      desiredPosition,
+      allApplications,
+      desiredApplication: application
     });
 
-    // Get all the items between current position and desired position
-    const itemsToUpdate = items.filter(
-      (i) => i.statusDisplayPosition >= desiredPosition && i.statusDisplayPosition < currentPosition
-    );
-
-    // Increment position by 1 because all those items are moving down
-    const updatedItems = itemsToUpdate.map((i) => ({
-      ...i,
-      statusDisplayPosition: i.statusDisplayPosition + 1
-    }));
-
-    // update the current application to its new desired position
-    application.statusDisplayPosition = desiredPosition;
-
-    updatedItems.push(application);
-    await this.jobApplicationRepo.save(updatedItems);
+    await this.jobApplicationRepo.save(updatedApplications);
+    const updatedApplication = updatedApplications.find((a) => a.id === application.id);
 
     return {
-      applicationId: application.id,
-      statusId: application.status.id,
-      position: application.statusDisplayPosition
+      applicationId: updatedApplication.id,
+      statusId: updatedApplication.status.id,
+      position: updatedApplication.statusDisplayPosition
     };
   }
 
-  private async itemMoveDown(
+  private async applicationMoveDown(
     application: JobApplicationEntity,
     desiredPosition: number
   ): Promise<ReorderApplicationResponseDto> {
     return;
   }
 
-  private async itemInsertedIntoList(
+  private async applicationStatusChanged(
     application: JobApplicationEntity,
     desiredPosition: number,
     updatedStatus: string
   ): Promise<ReorderApplicationResponseDto> {
     return;
+  }
+
+  private getApplicationsByStatusId(statusId: string): Promise<JobApplicationEntity[]> {
+    return this.jobApplicationRepo.find({
+      relations: ['status'],
+      where: { status: { id: statusId } }
+    });
   }
 }

@@ -5,11 +5,12 @@ import { JobApplicationStatusModule } from 'src/job-application-status/job-appli
 import { JobApplicationEntity } from './entities/job-application.entity';
 import { JobApplicationController } from './job-application.controller';
 import { JobApplicationService } from './job-application.service';
+import { ReorderApplicationsService } from './reorder-applications.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([JobApplicationEntity, JobApplicationStatusEntity])],
   controllers: [JobApplicationController],
-  providers: [JobApplicationService],
+  providers: [JobApplicationService, ReorderApplicationsService],
   exports: []
 })
 export class JobApplicationModule {}
