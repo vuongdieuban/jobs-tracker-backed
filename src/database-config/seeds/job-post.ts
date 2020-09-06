@@ -1,8 +1,8 @@
 import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
-import { Connection, Entity } from 'typeorm';
+import { getRepository } from 'typeorm';
 
-export async function jobPostsSeed(connection: Connection): Promise<JobPostEntity[]> {
-  const repo = connection.getRepository<JobPostEntity>(JobPostEntity);
+export async function jobPostsSeed(): Promise<JobPostEntity[]> {
+  const repo = getRepository<JobPostEntity>(JobPostEntity);
   const data = [
     {
       title: 'Dev1',

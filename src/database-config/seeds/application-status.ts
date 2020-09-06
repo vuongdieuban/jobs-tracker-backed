@@ -1,8 +1,8 @@
-import { Connection } from 'typeorm';
+import { getRepository } from 'typeorm';
 import { JobApplicationStatusEntity } from '../../job-application-status/entities/job-application-status.entity';
 
-export async function applicationStatusSeed(connection: Connection): Promise<JobApplicationStatusEntity[]> {
-  const repo = connection.getRepository<JobApplicationStatusEntity>(JobApplicationStatusEntity);
+export async function applicationStatusSeed(): Promise<JobApplicationStatusEntity[]> {
+  const repo = getRepository<JobApplicationStatusEntity>(JobApplicationStatusEntity);
   const data = [{ name: 'Applied' }, { name: 'Wish List' }];
 
   const entities = data.map((d) => {
