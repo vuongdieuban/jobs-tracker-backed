@@ -33,4 +33,25 @@ export class ReorderApplicationsService {
     updatedItems.push(desiredApplication);
     return updatedItems;
   }
+
+  public applicationMoveDown(data: ReorderData): JobApplicationEntity[] {
+    const { desiredApplication, desiredPosition, allApplications } = data;
+    const currentPosition = desiredApplication.statusDisplayPosition;
+
+    const applicationsToUpdate = allApplications.filter(
+      (a) => a.statusDisplayPosition > currentPosition && a.statusDisplayPosition <= desiredPosition
+    );
+
+    const updatedItems = applicationsToUpdate.map((a) => {
+      return {
+        ...a,
+        statusDisplayPosition: a.statusDisplayPosition - 1
+      } as JobApplicationEntity;
+    });
+
+    desiredApplication.statusDisplayPosition = desiredPosition;
+
+    updatedItems.push(desiredApplication);
+    return updatedItems;
+  }
 }
