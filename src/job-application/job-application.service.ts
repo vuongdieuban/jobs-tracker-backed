@@ -20,19 +20,23 @@ export class JobApplicationService {
     }
 
     if (application.status.id !== statusId) {
-      return this.itemInsertedIntoList();
+      return this.itemInsertedIntoList(application, desiredPosition, statusId);
     }
 
-    if (desiredPosition > application.statusPosition) {
-      return this.itemMoveDown();
+    if (desiredPosition > application.statusDisplayPosition) {
+      return this.itemMoveDown(application, desiredPosition);
     } else {
-      return this.itemMoveUp();
+      return this.itemMoveUp(application, desiredPosition);
     }
   }
 
-  private async itemMoveUp() {}
+  private async itemMoveUp(application: JobApplicationEntity, desiredPosition: number) {}
 
-  private async itemMoveDown() {}
+  private async itemMoveDown(application: JobApplicationEntity, desiredPosition: number) {}
 
-  private async itemInsertedIntoList() {}
+  private async itemInsertedIntoList(
+    application: JobApplicationEntity,
+    desiredPosition: number,
+    updatedStatus: string
+  ) {}
 }

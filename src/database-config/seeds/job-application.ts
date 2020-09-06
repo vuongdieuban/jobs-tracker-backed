@@ -12,31 +12,31 @@ export async function jobApplicationsSeed(
   const repo = getRepository<JobApplicationEntity>(JobApplicationEntity);
   const data = [
     {
-      statusPosition: 0,
+      statusDisplayPosition: 0,
       status: status[0],
       jobPost: jobPosts[0],
       user
     },
     {
-      statusPosition: 1,
+      statusDisplayPosition: 1,
       status: status[0],
       jobPost: jobPosts[1],
       user
     },
     {
-      statusPosition: 2,
+      statusDisplayPosition: 2,
       status: status[0],
       jobPost: jobPosts[2],
       user
     },
     {
-      statusPosition: 0,
+      statusDisplayPosition: 0,
       status: status[1],
       jobPost: jobPosts[3],
       user
     },
     {
-      statusPosition: 1,
+      statusDisplayPosition: 1,
       status: status[1],
       jobPost: jobPosts[4],
       user

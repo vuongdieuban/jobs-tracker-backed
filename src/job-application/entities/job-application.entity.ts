@@ -7,7 +7,7 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 @Entity()
 export class JobApplicationEntity extends AbstractEntity {
   @Column()
-  statusPosition: number;
+  statusDisplayPosition: number;
 
   @ManyToOne(
     (type) => UserEntity,
