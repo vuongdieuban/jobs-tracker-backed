@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class JobPostDTO {
+export class JobPostDto {
   @IsString()
   title: string;
 
@@ -10,4 +10,3 @@ export class JobPostDTO {
   @IsString()
   url: string;
 }
-

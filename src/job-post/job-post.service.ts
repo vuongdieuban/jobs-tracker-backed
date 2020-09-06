@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { JobPostDTO } from './dto/job-post.dto';
+import { JobPostDto } from './dto/job-post.dto';
 import { JobPostEntity } from './entities/job-post.entity';
 import { JobPostStateService } from './job-post-state.service';
 
@@ -9,8 +9,8 @@ import { JobPostStateService } from './job-post-state.service';
 export class JobPostService {
   constructor(
     @InjectRepository(JobPostEntity)
-    private readonly jobPostRepository: Repository<JobPostEntity>,
-  ) { }
+    private readonly jobPostRepository: Repository<JobPostEntity>
+  ) {}
 
   findAll(): Promise<JobPostEntity[]> {
     return this.jobPostRepository.find();
@@ -20,7 +20,7 @@ export class JobPostService {
     return this.jobPostRepository.findOne(id);
   }
 
-  async create(jobPost: JobPostDTO): Promise<JobPostEntity> {
+  async create(jobPost: JobPostDto): Promise<JobPostEntity> {
     const createdJobPost = this.jobPostRepository.create(jobPost);
     await createdJobPost.save();
     return createdJobPost;
