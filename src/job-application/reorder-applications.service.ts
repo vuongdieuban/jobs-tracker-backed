@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JobApplicationEntity } from './entities/job-application.entity';
 
 interface ApplicationMoved {
@@ -17,6 +17,7 @@ export class ReorderApplicationsService {
   // Desired application move up, other items in list move down
   public applicationMoveUp(data: ApplicationMoved): JobApplicationEntity[] {
     const { desiredApplication, desiredPosition, applications } = data;
+    this.checkReorderPosibility(desiredPosition, applications.length);
     const currentPosition = desiredApplication.statusDisplayPosition;
 
     // Get all the items between current position and desired position
@@ -36,6 +37,7 @@ export class ReorderApplicationsService {
 
   public applicationMoveDown(data: ApplicationMoved): JobApplicationEntity[] {
     const { desiredApplication, desiredPosition, applications } = data;
+    this.checkReorderPosibility(desiredPosition, applications.length);
     const currentPosition = desiredApplication.statusDisplayPosition;
 
     const applicationsToUpdate = applications.filter(
@@ -52,7 +54,6 @@ export class ReorderApplicationsService {
 
   public applicationStatusChanged(data: ApplicationStatusChanged): JobApplicationEntity[] {
     const { desiredApplication, desiredPosition, desiredStatusId, applications } = data;
-    console.log('applications', applications);
 
     const currentPosition = desiredApplication.statusDisplayPosition;
     const desiredStatus = applications.find((a) => a.status.id === desiredStatusId).status;
@@ -65,6 +66,9 @@ export class ReorderApplicationsService {
     const destination = applications.filter(
       (a) => a.status.id === desiredStatusId && a.statusDisplayPosition >= desiredPosition
     );
+
+    // TODO ERROR: status of undefined for filter if destination has 0 length
+    this.checkReorderPosibility(desiredPosition, destination.length);
 
     const updatedSource = this.itemsMoveUp(source);
     const updatedDestination = this.itemsMoveDown(destination);
@@ -92,5 +96,20 @@ export class ReorderApplicationsService {
         statusDisplayPosition: i.statusDisplayPosition + 1
       } as JobApplicationEntity;
     });
+  }
+
+  private checkReorderPosibility(desiredPosition: number, totalLength: number) {
+    // display order start at 0
+    if (totalLength) {
+      if (desiredPosition >= totalLength) {
+        console.log('totalLength', totalLength);
+        console.log('desiredPos', desiredPosition);
+        throw new BadRequestException('Cannot move to unexisted order.');
+      }
+    } else {
+      if (desiredPosition > 0) {
+        throw new BadRequestException('Cannot move to unexisted order.');
+      }
+    }
   }
 }
