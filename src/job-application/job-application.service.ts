@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
 import { Repository } from 'typeorm';
@@ -49,17 +49,17 @@ export class JobApplicationService {
       };
     }
 
-    return this.handleMovedApplication(application, desiredStatusId, desiredPosition);
+    return this.handleMovedApplication(application, status, desiredPosition);
   }
 
   private async handleMovedApplication(
     application: JobApplicationEntity,
-    desiredStatusId: string,
+    desiredStatus: JobApplicationStatusEntity,
     desiredPosition: number
   ): Promise<ReorderApplicationResponseDto> {
-    if (application.status.id !== desiredStatusId) {
+    if (application.status.id !== desiredStatus.id) {
       console.log('item inserted');
-      return this.applicationStatusChanged(application, desiredPosition, desiredStatusId);
+      return this.applicationStatusChanged(application, desiredStatus, desiredPosition);
     }
 
     if (desiredPosition > application.statusDisplayPosition) {
@@ -99,15 +99,16 @@ export class JobApplicationService {
 
   private async applicationStatusChanged(
     application: JobApplicationEntity,
-    desiredPosition: number,
-    desiredStatusId: string
+    desiredStatus: JobApplicationStatusEntity,
+    desiredPosition: number
   ): Promise<ReorderApplicationResponseDto> {
     const applications = await this.jobApplicationRepo.find({
       relations: ['status']
     });
+
     const reorderedApplications = this.reorderService.applicationStatusChanged({
       desiredPosition,
-      desiredStatusId,
+      desiredStatus,
       applications,
       desiredApplication: application
     });

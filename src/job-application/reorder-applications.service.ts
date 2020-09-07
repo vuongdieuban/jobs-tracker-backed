@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
 import { JobApplicationEntity } from './entities/job-application.entity';
 
 interface ApplicationMoved {
@@ -8,7 +9,7 @@ interface ApplicationMoved {
 }
 
 interface ApplicationStatusChanged extends ApplicationMoved {
-  desiredStatusId: string;
+  desiredStatus: JobApplicationStatusEntity;
 }
 
 @Injectable()
@@ -53,25 +54,26 @@ export class ReorderApplicationsService {
   }
 
   public applicationStatusChanged(data: ApplicationStatusChanged): JobApplicationEntity[] {
-    const { desiredApplication, desiredPosition, desiredStatusId, applications } = data;
+    const { desiredApplication, desiredPosition, desiredStatus, applications } = data;
+    const desiredStatusId = desiredStatus.id;
 
     const currentPosition = desiredApplication.statusDisplayPosition;
-    const desiredStatus = applications.find((a) => a.status.id === desiredStatusId).status;
 
-    // everything has to move up
-    const source = applications.filter(
+    // items that have to move up
+    const sourceItemsToUpdate = applications.filter(
       (a) => a.status.id === desiredApplication.status.id && a.statusDisplayPosition > currentPosition
     );
-    // everythin has to move down
-    const destination = applications.filter(
-      (a) => a.status.id === desiredStatusId && a.statusDisplayPosition >= desiredPosition
+
+    const destinationItems = applications.filter((a) => a.status.id === desiredStatusId);
+    // items that have to move down
+    const destinationItemsToUpdate = destinationItems.filter(
+      (a) => a.statusDisplayPosition >= desiredPosition
     );
 
-    // TODO ERROR: status of undefined for filter if destination has 0 length
-    this.checkReorderPosibility(desiredPosition, destination.length);
+    this.checkInsertPosibility(desiredPosition, destinationItems.length);
 
-    const updatedSource = this.itemsMoveUp(source);
-    const updatedDestination = this.itemsMoveDown(destination);
+    const updatedSource = this.itemsMoveUp(sourceItemsToUpdate);
+    const updatedDestination = this.itemsMoveDown(destinationItemsToUpdate);
 
     desiredApplication.statusDisplayPosition = desiredPosition;
     desiredApplication.status = desiredStatus;
@@ -100,15 +102,19 @@ export class ReorderApplicationsService {
 
   private checkReorderPosibility(desiredPosition: number, totalLength: number) {
     // display order start at 0
+    if (desiredPosition >= totalLength) {
+      throw new BadRequestException('Cannot move to unexisted order.');
+    }
+  }
+
+  private checkInsertPosibility(desiredPosition: number, totalLength: number) {
     if (totalLength) {
-      if (desiredPosition >= totalLength) {
-        console.log('totalLength', totalLength);
-        console.log('desiredPos', desiredPosition);
-        throw new BadRequestException('Cannot move to unexisted order.');
+      if (desiredPosition > totalLength) {
+        throw new BadRequestException('Cannot insert at this position.');
       }
     } else {
       if (desiredPosition > 0) {
-        throw new BadRequestException('Cannot move to unexisted order.');
+        throw new BadRequestException('Cannot insert at this position.');
       }
     }
   }
