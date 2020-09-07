@@ -1,31 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { JobApplicationEntity } from './entities/job-application.entity';
 
-export interface ReorderData {
+interface ApplicationMoved {
   desiredPosition: number;
   desiredApplication: JobApplicationEntity;
-  allApplications: JobApplicationEntity[];
+  applications: JobApplicationEntity[];
+}
+
+interface ApplicationStatusChanged extends ApplicationMoved {
+  desiredStatusId: string;
 }
 
 @Injectable()
 export class ReorderApplicationsService {
   // Return array of all applications that have been updated
-  public applicationMoveUp(data: ReorderData): JobApplicationEntity[] {
-    const { desiredApplication, desiredPosition, allApplications } = data;
+  // Desired application move up, other items in list move down
+  public applicationMoveUp(data: ApplicationMoved): JobApplicationEntity[] {
+    const { desiredApplication, desiredPosition, applications } = data;
     const currentPosition = desiredApplication.statusDisplayPosition;
 
     // Get all the items between current position and desired position
-    const applicationsToUpdate = allApplications.filter(
+    const applicationsToUpdate = applications.filter(
       (a) => a.statusDisplayPosition >= desiredPosition && a.statusDisplayPosition < currentPosition
     );
 
     // Increment position by 1 because all those items are moving down
-    const updatedItems = applicationsToUpdate.map((a) => {
-      return {
-        ...a,
-        statusDisplayPosition: a.statusDisplayPosition + 1
-      } as JobApplicationEntity;
-    });
+    const updatedItems = this.itemsMoveDown(applicationsToUpdate);
 
     // update the current application to its new desired position
     desiredApplication.statusDisplayPosition = desiredPosition;
@@ -34,24 +34,63 @@ export class ReorderApplicationsService {
     return updatedItems;
   }
 
-  public applicationMoveDown(data: ReorderData): JobApplicationEntity[] {
-    const { desiredApplication, desiredPosition, allApplications } = data;
+  public applicationMoveDown(data: ApplicationMoved): JobApplicationEntity[] {
+    const { desiredApplication, desiredPosition, applications } = data;
     const currentPosition = desiredApplication.statusDisplayPosition;
 
-    const applicationsToUpdate = allApplications.filter(
+    const applicationsToUpdate = applications.filter(
       (a) => a.statusDisplayPosition > currentPosition && a.statusDisplayPosition <= desiredPosition
     );
 
-    const updatedItems = applicationsToUpdate.map((a) => {
-      return {
-        ...a,
-        statusDisplayPosition: a.statusDisplayPosition - 1
-      } as JobApplicationEntity;
-    });
+    const updatedItems = this.itemsMoveUp(applicationsToUpdate);
 
     desiredApplication.statusDisplayPosition = desiredPosition;
 
     updatedItems.push(desiredApplication);
     return updatedItems;
+  }
+
+  public applicationStatusChanged(data: ApplicationStatusChanged): JobApplicationEntity[] {
+    const { desiredApplication, desiredPosition, desiredStatusId, applications } = data;
+    console.log('applications', applications);
+
+    const currentPosition = desiredApplication.statusDisplayPosition;
+    const desiredStatus = applications.find((a) => a.status.id === desiredStatusId).status;
+
+    // everything has to move up
+    const source = applications.filter(
+      (a) => a.status.id === desiredApplication.status.id && a.statusDisplayPosition > currentPosition
+    );
+    // everythin has to move down
+    const destination = applications.filter(
+      (a) => a.status.id === desiredStatusId && a.statusDisplayPosition >= desiredPosition
+    );
+
+    const updatedSource = this.itemsMoveUp(source);
+    const updatedDestination = this.itemsMoveDown(destination);
+
+    desiredApplication.statusDisplayPosition = desiredPosition;
+    desiredApplication.status = desiredStatus;
+
+    updatedDestination.push(desiredApplication);
+    return updatedSource.concat(updatedDestination);
+  }
+
+  private itemsMoveUp(items: JobApplicationEntity[]): JobApplicationEntity[] {
+    return items.map((i) => {
+      return {
+        ...i,
+        statusDisplayPosition: i.statusDisplayPosition - 1
+      } as JobApplicationEntity;
+    });
+  }
+
+  private itemsMoveDown(items: JobApplicationEntity[]): JobApplicationEntity[] {
+    return items.map((i) => {
+      return {
+        ...i,
+        statusDisplayPosition: i.statusDisplayPosition + 1
+      } as JobApplicationEntity;
+    });
   }
 }

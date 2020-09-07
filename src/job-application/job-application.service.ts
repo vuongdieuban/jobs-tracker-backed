@@ -76,13 +76,13 @@ export class JobApplicationService {
     desiredPosition: number
   ): Promise<ReorderApplicationResponseDto> {
     const statusId = application.status.id;
-    const allApplications = await this.getApplicationsByStatusId(statusId);
-    const updatedApplications = this.reorderService.applicationMoveUp({
+    const applications = await this.getApplicationsByStatusId(statusId);
+    const reorderedApplications = this.reorderService.applicationMoveUp({
       desiredPosition,
-      allApplications,
+      applications,
       desiredApplication: application
     });
-    return this.handleApplicationMovedUpdated(application.id, updatedApplications);
+    return this.saveReorderedApplications(application.id, reorderedApplications);
   }
 
   private async applicationMoveDown(
@@ -90,21 +90,31 @@ export class JobApplicationService {
     desiredPosition: number
   ): Promise<ReorderApplicationResponseDto> {
     const statusId = application.status.id;
-    const allApplications = await this.getApplicationsByStatusId(statusId);
-    const updatedApplications = this.reorderService.applicationMoveDown({
+    const applications = await this.getApplicationsByStatusId(statusId);
+    const reorderedApplications = this.reorderService.applicationMoveDown({
       desiredPosition,
-      allApplications,
+      applications,
       desiredApplication: application
     });
-    return this.handleApplicationMovedUpdated(application.id, updatedApplications);
+    return this.saveReorderedApplications(application.id, reorderedApplications);
   }
 
   private async applicationStatusChanged(
     application: JobApplicationEntity,
     desiredPosition: number,
-    updatedStatus: string
+    desiredStatusId: string
   ): Promise<ReorderApplicationResponseDto> {
-    return;
+    const applications = await this.jobApplicationRepo.find({
+      relations: ['status']
+    });
+    const reorderedApplications = this.reorderService.applicationStatusChanged({
+      desiredPosition,
+      desiredStatusId,
+      applications,
+      desiredApplication: application
+    });
+
+    return this.saveReorderedApplications(application.id, reorderedApplications);
   }
 
   private getApplicationsByStatusId(statusId: string): Promise<JobApplicationEntity[]> {
@@ -114,7 +124,7 @@ export class JobApplicationService {
     });
   }
 
-  private async handleApplicationMovedUpdated(
+  private async saveReorderedApplications(
     desiredApplicationId: string,
     updatedApplications: JobApplicationEntity[]
   ): Promise<ReorderApplicationResponseDto> {
