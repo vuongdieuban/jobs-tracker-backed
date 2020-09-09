@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
 import { Repository } from 'typeorm';
+import { ApplicationUpdatedResponseDto } from './dto/application-updated-response.dto';
 import { ReorderApplicationRequestDto } from './dto/reorder-application-request.dto';
-import { ReorderApplicationResponseDto } from './dto/reorder-application-response.dto';
 import { JobApplicationEntity } from './entities/job-application.entity';
 import { ReorderApplicationsService } from './reorder-applications.service';
 
@@ -24,7 +24,7 @@ export class JobApplicationService {
   public async reorder(
     applicationId: string,
     reorderDto: ReorderApplicationRequestDto
-  ): Promise<ReorderApplicationResponseDto> {
+  ): Promise<ApplicationUpdatedResponseDto> {
     const { position: desiredPosition, statusId: desiredStatusId } = reorderDto;
 
     const status = await this.applicationStatusRepo.findOneOrFail(desiredStatusId).catch((e) => {
@@ -49,14 +49,14 @@ export class JobApplicationService {
       };
     }
 
-    return this.handleMovedApplication(application, status, desiredPosition);
+    return this.moveApplication(application, status, desiredPosition);
   }
 
-  private async handleMovedApplication(
+  private async moveApplication(
     application: JobApplicationEntity,
     desiredStatus: JobApplicationStatusEntity,
     desiredPosition: number
-  ): Promise<ReorderApplicationResponseDto> {
+  ): Promise<ApplicationUpdatedResponseDto> {
     if (application.status.id !== desiredStatus.id) {
       console.log('item inserted');
       return this.applicationStatusChanged(application, desiredStatus, desiredPosition);
@@ -74,7 +74,7 @@ export class JobApplicationService {
   private async applicationMoveUp(
     application: JobApplicationEntity,
     desiredPosition: number
-  ): Promise<ReorderApplicationResponseDto> {
+  ): Promise<ApplicationUpdatedResponseDto> {
     const applications = await this.getApplicationsByStatusId(application.status.id);
     const reorderedApplications = this.reorderService.applicationMoveUp({
       desiredPosition,
@@ -87,7 +87,7 @@ export class JobApplicationService {
   private async applicationMoveDown(
     application: JobApplicationEntity,
     desiredPosition: number
-  ): Promise<ReorderApplicationResponseDto> {
+  ): Promise<ApplicationUpdatedResponseDto> {
     const applications = await this.getApplicationsByStatusId(application.status.id);
     const reorderedApplications = this.reorderService.applicationMoveDown({
       desiredPosition,
@@ -101,7 +101,7 @@ export class JobApplicationService {
     application: JobApplicationEntity,
     desiredStatus: JobApplicationStatusEntity,
     desiredPosition: number
-  ): Promise<ReorderApplicationResponseDto> {
+  ): Promise<ApplicationUpdatedResponseDto> {
     const applications = await this.jobApplicationRepo.find({
       relations: ['status']
     });
@@ -126,7 +126,7 @@ export class JobApplicationService {
   private async saveReorderedApplications(
     desiredApplicationId: string,
     updatedApplications: JobApplicationEntity[]
-  ): Promise<ReorderApplicationResponseDto> {
+  ): Promise<ApplicationUpdatedResponseDto> {
     const updatedData = await this.jobApplicationRepo.save(updatedApplications);
     const application = updatedData.find((a) => a.id === desiredApplicationId);
 

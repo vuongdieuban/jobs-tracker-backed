@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDefined, IsNumber, IsString } from 'class-validator';
 
-export class ReorderApplicationResponseDto {
+export class ApplicationUpdatedResponseDto {
   @ApiProperty()
   @IsNumber()
   @IsDefined()
