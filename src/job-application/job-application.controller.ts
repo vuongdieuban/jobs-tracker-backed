@@ -17,7 +17,7 @@ export class JobApplicationController {
   }
 
   @Post('')
-  public async create(@Body() payload: CreateApplicationRequestDto): Promise<JobApplicationEntity> {
+  public async create(@Body() payload: CreateApplicationRequestDto): Promise<ApplicationUpdatedResponseDto> {
     return this.jobApplicationService.create(payload);
   }
 

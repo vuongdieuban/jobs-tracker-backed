@@ -29,7 +29,7 @@ export class JobApplicationService {
     return this.jobApplicationRepo.find({ relations: ['status', 'jobPost'] });
   }
 
-  public async create(payload: CreateApplicationRequestDto): Promise<JobApplicationEntity> {
+  public async create(payload: CreateApplicationRequestDto): Promise<ApplicationUpdatedResponseDto> {
     try {
       const { jobPostId, statusId, userId } = payload;
       const jobPostPromise = this.jobPostReo.findOneOrFail(jobPostId);
@@ -46,8 +46,8 @@ export class JobApplicationService {
 
       application.statusDisplayPosition = status.jobApplications.length;
 
-      await application.save();
-      return application;
+      const createdApplication = await application.save();
+      return this.parseApplicationUpdatedResponse(createdApplication);
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
         throw new NotFoundException(error.message);
@@ -80,12 +80,7 @@ export class JobApplicationService {
     const { statusDisplayPosition: currentPosition } = application;
     const { id: currentStatus } = application.status;
     if (currentPosition === desiredPosition && currentStatus === desiredStatusId) {
-      return {
-        applicationId: application.id,
-        statusId: currentStatus,
-        position: currentPosition,
-        jobPostId: application.jobPost.id
-      };
+      return this.parseApplicationUpdatedResponse(application);
     }
 
     return this.moveApplication(application, status, desiredPosition);
@@ -168,6 +163,10 @@ export class JobApplicationService {
   ): Promise<ApplicationUpdatedResponseDto> {
     const updatedData = await this.jobApplicationRepo.save(updatedApplications);
     const application = updatedData.find((a) => a.id === desiredApplicationId);
+    return this.parseApplicationUpdatedResponse(application);
+  }
+
+  private parseApplicationUpdatedResponse(application: JobApplicationEntity): ApplicationUpdatedResponseDto {
     return {
       applicationId: application.id,
       statusId: application.status.id,
