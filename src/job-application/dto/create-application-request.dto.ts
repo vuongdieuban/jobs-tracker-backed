@@ -1,12 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDefined, IsNumber, IsString } from 'class-validator';
+import { IsDefined, IsString } from 'class-validator';
 
-export class ApplicationUpdatedResponseDto {
-  @ApiProperty()
-  @IsNumber()
-  @IsDefined()
-  readonly position: number;
-
+export class CreateApplicationRequestDto {
   @ApiProperty()
   @IsString()
   @IsDefined()
@@ -15,7 +10,7 @@ export class ApplicationUpdatedResponseDto {
   @ApiProperty()
   @IsString()
   @IsDefined()
-  readonly applicationId: string;
+  readonly userId: string;
 
   @ApiProperty()
   @IsString()
