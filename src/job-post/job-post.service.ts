@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PlatformEntity } from 'src/platform/entities/platform.entity';
 import { Repository } from 'typeorm';
 import { JobPostDto } from './dto/job-post.dto';
 import { JobPostEntity } from './entities/job-post.entity';
@@ -8,20 +9,41 @@ import { JobPostEntity } from './entities/job-post.entity';
 export class JobPostService {
   constructor(
     @InjectRepository(JobPostEntity)
-    private readonly jobPostRepository: Repository<JobPostEntity>
+    private readonly jobPostRepository: Repository<JobPostEntity>,
+    @InjectRepository(PlatformEntity)
+    private readonly platformRepo: Repository<PlatformEntity>
   ) {}
 
-  findAll(): Promise<JobPostEntity[]> {
-    return this.jobPostRepository.find();
+  async findAll(): Promise<JobPostEntity[]> {
+    return this.jobPostRepository.find({ relations: ['platform'] });
   }
 
-  findOne(id: string): Promise<JobPostEntity> {
-    return this.jobPostRepository.findOne(id);
+  async findOne(id: string): Promise<JobPostEntity> {
+    return this.jobPostRepository.findOneOrFail(id, { relations: ['platform'] }).catch((e) => {
+      throw new NotFoundException(`Cannot find job post with id ${id}`);
+    });
   }
 
   async create(jobPost: JobPostDto): Promise<JobPostEntity> {
-    const createdJobPost = this.jobPostRepository.create(jobPost);
-    await createdJobPost.save();
+    const { platformId, platformJobKey } = jobPost;
+    const platform = await this.platformRepo.findOneOrFail(platformId).catch((e) => {
+      throw new NotFoundException(`Cannot find platform with id ${platformId}`);
+    });
+
+    const existedJobPost = await this.jobPostRepository
+      .createQueryBuilder('jobPost')
+      .leftJoinAndSelect('jobPost.platform', 'platform')
+      .where('jobPost.platformJobKey = :platformJobKey', { platformJobKey })
+      .andWhere('platform.id = :platformId', { platformId })
+      .getOne();
+
+    if (existedJobPost) {
+      return existedJobPost;
+    }
+
+    let createdJobPost = this.jobPostRepository.create(jobPost);
+    createdJobPost.platform = platform;
+    createdJobPost = await createdJobPost.save();
     return createdJobPost;
   }
 }

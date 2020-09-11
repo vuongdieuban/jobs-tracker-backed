@@ -11,12 +11,12 @@ import { JobApplicationService } from './job-application.service';
 export class JobApplicationController {
   constructor(private readonly jobApplicationService: JobApplicationService) {}
 
-  @Get('')
-  public async getAll(): Promise<JobApplicationEntity[]> {
-    return this.jobApplicationService.getAll();
+  @Get('/')
+  public async findAll(): Promise<JobApplicationEntity[]> {
+    return this.jobApplicationService.findAll();
   }
 
-  @Post('')
+  @Post('/')
   public async create(@Body() payload: CreateApplicationRequestDto): Promise<ApplicationUpdatedResponseDto> {
     return this.jobApplicationService.create(payload);
   }

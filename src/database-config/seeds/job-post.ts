@@ -8,31 +8,36 @@ export async function jobPostsSeed(): Promise<JobPostEntity[]> {
       title: 'Dev1',
       url: 'a.com',
       companyName: 'ComA',
-      location: 'BC'
+      location: 'BC',
+      platformJobKey: 'abc'
     },
     {
       title: 'Dev2',
       url: 'a.com',
       companyName: 'ComA',
-      location: 'BC'
+      location: 'BC',
+      platformJobKey: 'def'
     },
     {
       title: 'Dev3',
       url: 'a.com',
       companyName: 'ComA',
-      location: 'BC'
+      location: 'BC',
+      platformJobKey: 'ijk'
     },
     {
       title: 'Dev4',
       url: 'a.com',
       companyName: 'ComA',
-      location: 'BC'
+      location: 'BC',
+      platformJobKey: 'ytr'
     },
     {
       title: 'Dev5',
       url: 'a.com',
       companyName: 'ComA',
-      location: 'BC'
+      location: 'BC',
+      platformJobKey: 'xyz'
     }
   ];
 

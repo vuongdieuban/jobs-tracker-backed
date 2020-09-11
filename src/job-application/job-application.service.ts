@@ -25,7 +25,7 @@ export class JobApplicationService {
     private readonly userRepo: Repository<UserEntity>
   ) {}
 
-  public async getAll(): Promise<JobApplicationEntity[]> {
+  public async findAll(): Promise<JobApplicationEntity[]> {
     return this.jobApplicationRepo.find({ relations: ['status', 'jobPost'] });
   }
 
