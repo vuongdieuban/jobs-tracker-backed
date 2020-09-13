@@ -2,13 +2,13 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
 import { JobApplicationEntity } from './entities/job-application.entity';
 
-interface ApplicationMoved {
+interface ApplicationToMove {
   desiredPosition: number;
   desiredApplication: JobApplicationEntity;
   applications: JobApplicationEntity[];
 }
 
-interface ApplicationStatusChanged extends ApplicationMoved {
+interface ApplicationStatusChange extends ApplicationToMove {
   desiredStatus: JobApplicationStatusEntity;
 }
 
@@ -16,7 +16,7 @@ interface ApplicationStatusChanged extends ApplicationMoved {
 export class ReorderApplicationsService {
   // Return array of all applications that have been updated
   // Desired application move up, other items in list move down
-  public applicationMoveUp(data: ApplicationMoved): JobApplicationEntity[] {
+  public applicationMoveUp(data: ApplicationToMove): JobApplicationEntity[] {
     const { desiredApplication, desiredPosition, applications } = data;
     this.checkReorderPosibility(desiredPosition, applications.length);
     const currentPosition = desiredApplication.statusDisplayPosition;
@@ -36,7 +36,7 @@ export class ReorderApplicationsService {
     return updatedItems;
   }
 
-  public applicationMoveDown(data: ApplicationMoved): JobApplicationEntity[] {
+  public applicationMoveDown(data: ApplicationToMove): JobApplicationEntity[] {
     const { desiredApplication, desiredPosition, applications } = data;
     this.checkReorderPosibility(desiredPosition, applications.length);
     const currentPosition = desiredApplication.statusDisplayPosition;
@@ -53,7 +53,7 @@ export class ReorderApplicationsService {
     return updatedItems;
   }
 
-  public applicationStatusChanged(data: ApplicationStatusChanged): JobApplicationEntity[] {
+  public applicationStatusChanged(data: ApplicationStatusChange): JobApplicationEntity[] {
     const { desiredApplication, desiredPosition, desiredStatus, applications } = data;
     const desiredStatusId = desiredStatus.id;
 
