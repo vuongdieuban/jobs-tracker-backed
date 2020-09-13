@@ -93,7 +93,7 @@ export class JobApplicationService {
   ): Promise<ApplicationUpdatedResponseDto> {
     if (application.status.id !== desiredStatus.id) {
       console.log('item inserted');
-      return this.applicationStatusChanged(application, desiredStatus, desiredPosition);
+      return this.applicationStatusChange(application, desiredStatus, desiredPosition);
     }
 
     if (desiredPosition > application.statusDisplayPosition) {
@@ -131,7 +131,7 @@ export class JobApplicationService {
     return this.saveReorderedApplications(application.id, reorderedApplications);
   }
 
-  private async applicationStatusChanged(
+  private async applicationStatusChange(
     application: JobApplicationEntity,
     desiredStatus: JobApplicationStatusEntity,
     desiredPosition: number
@@ -140,7 +140,7 @@ export class JobApplicationService {
       relations: ['status', 'jobPost']
     });
 
-    const reorderedApplications = this.reorderService.applicationStatusChanged({
+    const reorderedApplications = this.reorderService.applicationStatusChange({
       desiredPosition,
       desiredStatus,
       applications,

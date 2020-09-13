@@ -53,7 +53,7 @@ export class ReorderApplicationsService {
     return updatedItems;
   }
 
-  public applicationStatusChanged(data: ApplicationStatusChange): JobApplicationEntity[] {
+  public applicationStatusChange(data: ApplicationStatusChange): JobApplicationEntity[] {
     const { desiredApplication, desiredPosition, desiredStatus, applications } = data;
     const desiredStatusId = desiredStatus.id;
 
