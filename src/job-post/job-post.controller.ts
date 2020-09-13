@@ -10,12 +10,12 @@ export class JobPostController {
   constructor(private readonly jobPostService: JobPostService) {}
 
   @Get('/')
-  async findAll(): Promise<JobPostDto[]> {
+  async findAll(): Promise<JobPostEntity[]> {
     return this.jobPostService.findAll();
   }
 
   @Post('/')
-  async create(@Body() jobPost: JobPostDto): Promise<JobPostDto> {
+  async create(@Body() jobPost: JobPostDto): Promise<JobPostEntity> {
     return this.jobPostService.create(jobPost);
   }
 }

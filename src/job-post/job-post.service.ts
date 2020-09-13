@@ -14,19 +14,17 @@ export class JobPostService {
     private readonly platformRepo: Repository<PlatformEntity>
   ) {}
 
-  async findAll(): Promise<JobPostDto[]> {
-    const data = await this.jobPostRepository.find({ relations: ['platform'] });
-    return data.map((d) => this.parseJobPostResponse(d));
+  async findAll(): Promise<JobPostEntity[]> {
+    return this.jobPostRepository.find({ relations: ['platform'] });
   }
 
-  async findOne(id: string): Promise<JobPostDto> {
-    const data = await this.jobPostRepository.findOneOrFail(id, { relations: ['platform'] }).catch((e) => {
+  async findOne(id: string): Promise<JobPostEntity> {
+    return this.jobPostRepository.findOneOrFail(id, { relations: ['platform'] }).catch((e) => {
       throw new NotFoundException(`Cannot find job post with id ${id}`);
     });
-    return this.parseJobPostResponse(data);
   }
 
-  async create(jobPost: JobPostDto): Promise<JobPostDto> {
+  async create(jobPost: JobPostDto): Promise<JobPostEntity> {
     const { platformId, platformJobKey } = jobPost;
     const platform = await this.platformRepo.findOneOrFail(platformId).catch((e) => {
       throw new NotFoundException(`Cannot find platform with id ${platformId}`);
@@ -40,18 +38,12 @@ export class JobPostService {
       .getOne();
 
     if (existedJobPost) {
-      return this.parseJobPostResponse(existedJobPost);
+      return existedJobPost;
     }
 
     let createdJobPost = this.jobPostRepository.create(jobPost);
     createdJobPost.platform = platform;
     createdJobPost = await createdJobPost.save();
-    return this.parseJobPostResponse(createdJobPost);
-  }
-
-  private parseJobPostResponse(jobPost: JobPostEntity): JobPostDto {
-    const response = { ...jobPost, platformId: jobPost.platform.id };
-    delete response.platform;
-    return response;
+    return createdJobPost;
   }
 }
