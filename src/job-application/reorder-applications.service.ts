@@ -2,14 +2,21 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
 import { JobApplicationEntity } from './entities/job-application.entity';
 
-interface ApplicationToMove {
-  desiredPosition: number;
+interface BaseApplicationAction {
   desiredApplication: JobApplicationEntity;
   applications: JobApplicationEntity[];
 }
 
+interface ApplicationToMove extends BaseApplicationAction {
+  desiredPosition: number;
+}
+
 interface ApplicationStatusChange extends ApplicationToMove {
   desiredStatus: JobApplicationStatusEntity;
+}
+
+interface ApplicationArchive extends BaseApplicationAction {
+  archiveStatus: JobApplicationStatusEntity;
 }
 
 @Injectable()
@@ -48,6 +55,25 @@ export class ReorderApplicationsService {
     const updatedItems = this.itemsMoveUp(applicationsToUpdate);
 
     desiredApplication.statusDisplayPosition = desiredPosition;
+
+    updatedItems.push(desiredApplication);
+    return updatedItems;
+  }
+
+  public applicationArchive(data: ApplicationArchive): JobApplicationEntity[] {
+    const { applications, desiredApplication, archiveStatus } = data;
+    const currentPosition = desiredApplication.statusDisplayPosition;
+
+    const sourceItemsToUpdate = applications.filter(
+      (a) => a.status.id === desiredApplication.status.id && a.statusDisplayPosition > currentPosition
+    );
+
+    const archivedItems = applications.filter((a) => a.status.id === archiveStatus.id);
+
+    const updatedItems = this.itemsMoveUp(sourceItemsToUpdate);
+
+    desiredApplication.status = archiveStatus;
+    desiredApplication.statusDisplayPosition = archivedItems.length;
 
     updatedItems.push(desiredApplication);
     return updatedItems;

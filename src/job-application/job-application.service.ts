@@ -59,6 +59,26 @@ export class JobApplicationService {
     }
   }
 
+  public async archive(applicationId: string): Promise<ApplicationUpdatedResponseDto> {
+    const statusPromise = this.applicationStatusRepo.findOneOrFail({
+      where: { name: 'Archive' }
+    });
+
+    const [applications, desiredApplication, archiveStatus] = await Promise.all([
+      this.getAllApplications(),
+      this.getApplicationById(applicationId),
+      statusPromise
+    ]);
+
+    const updatedApplications = this.reorderService.applicationArchive({
+      desiredApplication,
+      applications,
+      archiveStatus
+    });
+
+    return this.saveReorderedApplications(applicationId, updatedApplications);
+  }
+
   public async reorder(
     applicationId: string,
     reorderDto: ReorderApplicationRequestDto
@@ -69,13 +89,7 @@ export class JobApplicationService {
       throw new NotFoundException(`Status with id ${applicationId} not found`);
     });
 
-    const application = await this.jobApplicationRepo
-      .findOneOrFail(applicationId, {
-        relations: ['status', 'jobPost']
-      })
-      .catch((e) => {
-        throw new NotFoundException(`Application with id ${applicationId} not found`);
-      });
+    const application = await this.getApplicationById(applicationId);
 
     const { statusDisplayPosition: currentPosition } = application;
     const { id: currentStatus } = application.status;
@@ -136,9 +150,7 @@ export class JobApplicationService {
     desiredStatus: JobApplicationStatusEntity,
     desiredPosition: number
   ): Promise<ApplicationUpdatedResponseDto> {
-    const applications = await this.jobApplicationRepo.find({
-      relations: ['status', 'jobPost']
-    });
+    const applications = await this.getAllApplications();
 
     const reorderedApplications = this.reorderService.applicationStatusChange({
       desiredPosition,
@@ -154,6 +166,22 @@ export class JobApplicationService {
     return this.jobApplicationRepo.find({
       relations: ['status', 'jobPost'],
       where: { status: { id: statusId } }
+    });
+  }
+
+  private async getApplicationById(applicationId: string): Promise<JobApplicationEntity> {
+    return this.jobApplicationRepo
+      .findOneOrFail(applicationId, {
+        relations: ['status', 'jobPost']
+      })
+      .catch((e) => {
+        throw new NotFoundException(`Application with id ${applicationId} not found`);
+      });
+  }
+
+  private async getAllApplications(): Promise<JobApplicationEntity[]> {
+    return this.jobApplicationRepo.find({
+      relations: ['status', 'jobPost']
     });
   }
 
