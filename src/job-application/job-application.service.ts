@@ -33,7 +33,7 @@ export class JobApplicationService {
   public async create(payload: CreateApplicationRequestDto): Promise<JobApplicationEntity> {
     try {
       const { jobPostId, statusId, userId } = payload;
-      const jobPostPromise = this.jobPostReo.findOneOrFail(jobPostId);
+      const jobPostPromise = this.jobPostReo.findOneOrFail(jobPostId, { relations: ['platform'] });
       const userPromise = this.userRepo.findOneOrFail(userId);
       const statusPromise = this.applicationStatusRepo.findOneOrFail(statusId, {
         relations: ['jobApplications']
