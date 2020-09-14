@@ -24,7 +24,7 @@ export class JobPostService {
     });
   }
 
-  async create(jobPost: JobPostDto): Promise<JobPostEntity> {
+  async getOrCreate(jobPost: JobPostDto): Promise<JobPostEntity> {
     const { platformId, platformJobKey } = jobPost;
     const platform = await this.platformRepo.findOneOrFail(platformId).catch((e) => {
       throw new NotFoundException(`Cannot find platform with id ${platformId}`);

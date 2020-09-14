@@ -15,7 +15,7 @@ export class JobPostController {
   }
 
   @Post('/')
-  async create(@Body() jobPost: JobPostDto): Promise<JobPostEntity> {
-    return this.jobPostService.create(jobPost);
+  async getOrCreate(@Body() jobPost: JobPostDto): Promise<JobPostEntity> {
+    return this.jobPostService.getOrCreate(jobPost);
   }
 }

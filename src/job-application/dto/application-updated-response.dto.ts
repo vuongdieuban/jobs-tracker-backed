@@ -3,6 +3,11 @@ import { IsDefined, IsNumber, IsString } from 'class-validator';
 
 export class ApplicationUpdatedResponseDto {
   @ApiProperty()
+  @IsString()
+  @IsDefined()
+  readonly id: string;
+
+  @ApiProperty()
   @IsNumber()
   @IsDefined()
   readonly position: number;
@@ -11,11 +16,6 @@ export class ApplicationUpdatedResponseDto {
   @IsString()
   @IsDefined()
   readonly statusId: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsDefined()
-  readonly applicationId: string;
 
   @ApiProperty()
   @IsString()

@@ -29,7 +29,7 @@ export class JobApplicationService {
     return this.jobApplicationRepo.find({ relations: ['status', 'jobPost'] });
   }
 
-  public async create(payload: CreateApplicationRequestDto): Promise<ApplicationUpdatedResponseDto> {
+  public async create(payload: CreateApplicationRequestDto): Promise<JobApplicationEntity> {
     try {
       const { jobPostId, statusId, userId } = payload;
       const jobPostPromise = this.jobPostReo.findOneOrFail(jobPostId);
@@ -47,7 +47,7 @@ export class JobApplicationService {
       application.statusDisplayPosition = status.jobApplications.length;
 
       const createdApplication = await application.save();
-      return this.parseApplicationUpdatedResponse(createdApplication);
+      return this.parseApplicationCreatedResponse(createdApplication);
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
         throw new NotFoundException(error.message);
@@ -196,10 +196,17 @@ export class JobApplicationService {
 
   private parseApplicationUpdatedResponse(application: JobApplicationEntity): ApplicationUpdatedResponseDto {
     return {
-      applicationId: application.id,
+      id: application.id,
       statusId: application.status.id,
       position: application.statusDisplayPosition,
       jobPostId: application.jobPost.id
     };
+  }
+
+  private parseApplicationCreatedResponse(application: JobApplicationEntity): JobApplicationEntity {
+    delete application.status?.jobApplications;
+    delete application.user.email;
+    delete application.user.googleId;
+    return application;
   }
 }
