@@ -1,6 +1,5 @@
 import { BadGatewayException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { application } from 'express';
 import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
 import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -27,7 +26,7 @@ export class JobApplicationService {
   ) {}
 
   public async findAll(): Promise<JobApplicationEntity[]> {
-    const applications = await this.jobApplicationRepo.find({ relations: ['status', 'jobPost', 'user'] });
+    const applications = await this.getAllApplications();
     return applications.map((a) => this.parseFullApplicationResponse(a));
   }
 
@@ -166,7 +165,7 @@ export class JobApplicationService {
 
   private getApplicationsByStatusId(statusId: string): Promise<JobApplicationEntity[]> {
     return this.jobApplicationRepo.find({
-      relations: ['status', 'jobPost'],
+      relations: ['status', 'jobPost', 'jobPost.platform', 'user'],
       where: { status: { id: statusId } }
     });
   }
@@ -174,7 +173,7 @@ export class JobApplicationService {
   private async getApplicationById(applicationId: string): Promise<JobApplicationEntity> {
     return this.jobApplicationRepo
       .findOneOrFail(applicationId, {
-        relations: ['status', 'jobPost']
+        relations: ['status', 'jobPost', 'jobPost.platform', 'user']
       })
       .catch((e) => {
         throw new NotFoundException(`Application with id ${applicationId} not found`);
@@ -183,7 +182,7 @@ export class JobApplicationService {
 
   private async getAllApplications(): Promise<JobApplicationEntity[]> {
     return this.jobApplicationRepo.find({
-      relations: ['status', 'jobPost']
+      relations: ['status', 'jobPost', 'jobPost.platform', 'user']
     });
   }
 
