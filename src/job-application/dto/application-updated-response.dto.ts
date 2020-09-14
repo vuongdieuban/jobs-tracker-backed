@@ -21,4 +21,9 @@ export class ApplicationUpdatedResponseDto {
   @IsString()
   @IsDefined()
   readonly jobPostId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsDefined()
+  readonly userId: string;
 }

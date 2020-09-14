@@ -200,7 +200,8 @@ export class JobApplicationService {
       id: application.id,
       statusId: application.status.id,
       statusDisplayPosition: application.statusDisplayPosition,
-      jobPostId: application.jobPost.id
+      jobPostId: application.jobPost.id,
+      userId: application.user.id
     };
   }
 
