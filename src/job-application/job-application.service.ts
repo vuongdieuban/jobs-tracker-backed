@@ -198,7 +198,7 @@ export class JobApplicationService {
     return {
       id: application.id,
       statusId: application.status.id,
-      position: application.statusDisplayPosition,
+      statusDisplayPosition: application.statusDisplayPosition,
       jobPostId: application.jobPost.id
     };
   }
