@@ -1,5 +1,6 @@
 import { BadGatewayException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { application } from 'express';
 import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
 import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -26,7 +27,8 @@ export class JobApplicationService {
   ) {}
 
   public async findAll(): Promise<JobApplicationEntity[]> {
-    return this.jobApplicationRepo.find({ relations: ['status', 'jobPost'] });
+    const applications = await this.jobApplicationRepo.find({ relations: ['status', 'jobPost', 'user'] });
+    return applications.map((a) => this.parseFullApplicationResponse(a));
   }
 
   public async create(payload: CreateApplicationRequestDto): Promise<JobApplicationEntity> {
@@ -47,7 +49,7 @@ export class JobApplicationService {
       application.statusDisplayPosition = status.jobApplications.length;
 
       const createdApplication = await application.save();
-      return this.parseApplicationCreatedResponse(createdApplication);
+      return this.parseFullApplicationResponse(createdApplication);
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
         throw new NotFoundException(error.message);
@@ -203,7 +205,7 @@ export class JobApplicationService {
     };
   }
 
-  private parseApplicationCreatedResponse(application: JobApplicationEntity): JobApplicationEntity {
+  private parseFullApplicationResponse(application: JobApplicationEntity): JobApplicationEntity {
     delete application.status?.jobApplications;
     delete application.user.email;
     delete application.user.googleId;
