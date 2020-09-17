@@ -84,13 +84,18 @@ export class JobApplicationService {
     applicationId: string,
     reorderDto: ReorderApplicationRequestDto
   ): Promise<ApplicationUpdatedResponseDto> {
-    const { position: desiredPosition, statusId: desiredStatusId } = reorderDto;
+    let { position: desiredPosition } = reorderDto;
+    const { statusId: desiredStatusId } = reorderDto;
 
-    const status = await this.applicationStatusRepo.findOneOrFail(desiredStatusId).catch((e) => {
-      throw new NotFoundException(`Status with id ${applicationId} not found`);
-    });
+    const status = await this.applicationStatusRepo
+      .findOneOrFail(desiredStatusId, { relations: ['jobApplications'] })
+      .catch((e) => {
+        throw new NotFoundException(`Status with id ${applicationId} not found`);
+      });
 
     const application = await this.getApplicationById(applicationId);
+
+    desiredPosition = desiredPosition ? desiredPosition : status.jobApplications.length;
 
     const { statusDisplayPosition: currentPosition } = application;
     const { id: currentStatus } = application.status;
