@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import { runDbSeed } from '../seeds';
 
-export class Seed1599362263147 implements MigrationInterface {
+export class seed1600926763139 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await runDbSeed();
   }
