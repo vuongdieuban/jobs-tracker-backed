@@ -27,7 +27,7 @@ To create a blank migration file, run
 $ npm run typeorm:migration:create -- <my_migration_file>
 ```
 
-To generate migration file based on database changes
+To generate migration file based on entity changes
 
 ```bash
 $ npm run typeorm:migration:generate -- <my_migration_file>
