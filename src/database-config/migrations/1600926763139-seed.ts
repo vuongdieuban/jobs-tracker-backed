@@ -3,8 +3,7 @@ import { runDbSeed } from '../seeds';
 
 export class seed1600926763139 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // const conn = await queryRunner.connect();
-    const conn = getConnection();
+    const conn = queryRunner.connection;
     await runDbSeed(conn);
   }
 
