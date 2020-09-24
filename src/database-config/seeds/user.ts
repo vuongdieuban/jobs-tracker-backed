@@ -1,8 +1,8 @@
-import { getRepository } from 'typeorm';
+import { Connection } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 
-export async function userSeed(): Promise<UserEntity> {
-  const repo = getRepository<UserEntity>(UserEntity);
+export async function userSeed(connection: Connection): Promise<UserEntity> {
+  const repo = connection.getRepository<UserEntity>(UserEntity);
 
   const user = repo.create({
     lastName: 'vuong',

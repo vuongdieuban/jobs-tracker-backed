@@ -1,9 +1,11 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { getConnection, MigrationInterface, QueryRunner } from 'typeorm';
 import { runDbSeed } from '../seeds';
 
 export class seed1600926763139 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await runDbSeed();
+    // const conn = await queryRunner.connect();
+    const conn = getConnection();
+    await runDbSeed(conn);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {}

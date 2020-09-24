@@ -2,14 +2,15 @@ import { JobApplicationStatusEntity } from 'src/job-application-status/entities/
 import { JobApplicationEntity } from 'src/job-application/entities/job-application.entity';
 import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { getRepository } from 'typeorm';
+import { Connection } from 'typeorm';
 
 export async function jobApplicationsSeed(
+  connection: Connection,
   user: UserEntity,
   status: JobApplicationStatusEntity[],
   jobPosts: JobPostEntity[]
 ): Promise<JobApplicationEntity[]> {
-  const repo = getRepository<JobApplicationEntity>(JobApplicationEntity);
+  const repo = connection.getRepository<JobApplicationEntity>(JobApplicationEntity);
   const data = [
     {
       statusDisplayPosition: 0,
