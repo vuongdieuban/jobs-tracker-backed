@@ -2,8 +2,9 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 // NOTE: synchornize should be false in prod, synchromize tells typeorm to auto update/make migration based on our entity code when it changes,
 // This synchronize will overwrite our migration change back whatever the current entity model is
+// Currently there isn't any migration code to create table, so initially if synchonize is off when boot up the db, no table will be created
 export const typeormConfigOptions: TypeOrmModuleOptions = {
-  synchronize: false,
+  synchronize: true,
   name: 'default',
   type: 'postgres',
   host: process.env.POSTGRES_HOST,
