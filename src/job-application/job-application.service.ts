@@ -95,7 +95,7 @@ export class JobApplicationService {
 
     const application = await this.getApplicationById(applicationId);
 
-    desiredPosition = desiredPosition ? desiredPosition : status.jobApplications.length;
+    desiredPosition = desiredPosition === undefined ? status.jobApplications.length : desiredPosition;
 
     const { statusDisplayPosition: currentPosition } = application;
     const { id: currentStatus } = application.status;
