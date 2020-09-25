@@ -10,10 +10,10 @@ import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    JobPostModule,
     TypeOrmModule.forRootAsync({
       useClass: DatabaseConnectionService
     }),
+    JobPostModule,
     PlatformModule,
     JobApplicationModule,
     JobApplicationStatusModule,
