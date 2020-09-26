@@ -11,6 +11,8 @@ NOTE: If this application is run inside docker then these script should be run i
 
 All migrations file generated will be in `src/database-config/migrations`
 
+Change NODE_ENV to production before running migration manually
+
 ### Step 1.
 
 Generate an `ormconfig.json` so we can use typeorm cli to run migration commands.
