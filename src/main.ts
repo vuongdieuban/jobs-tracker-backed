@@ -8,8 +8,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
 
-  const conn = getConnection();
-  await conn.runMigrations();
+  // const conn = getConnection();
+  // await conn.runMigrations();
 
   const options = new DocumentBuilder()
     .setTitle('Verification Service API Documentation')

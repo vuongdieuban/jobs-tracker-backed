@@ -1,12 +1,12 @@
 import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
 import { PlatformEntity } from 'src/platform/entities/platform.entity';
-import { Connection } from 'typeorm';
+import { EntityManager } from 'typeorm';
 
 export async function platformSeed(
-  connection: Connection,
+  manager: EntityManager,
   jobPosts: JobPostEntity[]
 ): Promise<PlatformEntity> {
-  const repo = connection.getRepository<PlatformEntity>(PlatformEntity);
+  const repo = manager.getRepository<PlatformEntity>(PlatformEntity);
 
   const platform = repo.create({
     name: 'Indeed',
@@ -14,5 +14,5 @@ export async function platformSeed(
     jobPosts
   });
 
-  return platform.save();
+  return repo.save(platform);
 }

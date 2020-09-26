@@ -1,9 +1,9 @@
 import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
-import { Connection } from 'typeorm';
+import { EntityManager } from 'typeorm';
 
-export async function jobPostsSeed(connection: Connection): Promise<JobPostEntity[]> {
-  const repo = connection.getRepository<JobPostEntity>(JobPostEntity);
-  const data = [
+export async function jobPostsSeed(manager: EntityManager): Promise<JobPostEntity[]> {
+  const repo = manager.getRepository<JobPostEntity>(JobPostEntity);
+  const seeds = [
     {
       title: 'Dev1',
       url: 'a.com',
@@ -41,10 +41,6 @@ export async function jobPostsSeed(connection: Connection): Promise<JobPostEntit
     }
   ];
 
-  const entities = data.map((d) => {
-    const entity = repo.create(d);
-    return entity.save();
-  });
-
-  return Promise.all(entities);
+  const data = seeds.map((seed) => repo.create(seed));
+  return repo.save(data);
 }

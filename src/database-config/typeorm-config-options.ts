@@ -5,7 +5,8 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 // We will use typeorm cli to generate migration files based on our entity changes and then run the migrations
 // Currently there isn't any migration code to create table, so initially if synchonize is off when boot up the db, no table will be created
 export const typeormConfigOptions: TypeOrmModuleOptions = {
-  synchronize: true,
+  synchronize: false, // false in prod
+  // dropSchema: false, // remove in prod
   name: 'default',
   type: 'postgres',
   host: process.env.POSTGRES_HOST,
@@ -13,7 +14,6 @@ export const typeormConfigOptions: TypeOrmModuleOptions = {
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
-  dropSchema: false,
   logging: true,
   entities: ['dist/**/*.entity.js'],
 
