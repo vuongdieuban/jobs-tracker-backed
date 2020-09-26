@@ -1,12 +1,9 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-// NOTE: synchornize should be false in prod, synchromize tells typeorm to auto update/make migration based on our entity code when it changes,
-// Auto run sync entity with database immediately might lead to unwanted behaviour
-// We will use typeorm cli to generate migration files based on our entity changes and then run the migrations
-// Currently there isn't any migration code to create table, so initially if synchonize is off when boot up the db, no table will be created
+// synchronize is only for dev because it auto run migration on entity model change
 export const typeormConfigOptions: TypeOrmModuleOptions = {
-  synchronize: false, // false in prod
-  // dropSchema: false, // remove in prod
+  synchronize: process.env.NODE_ENV === 'development' ? true : false, // false in prod so we can run migration manually
+  dropSchema: false,
   name: 'default',
   type: 'postgres',
   host: process.env.POSTGRES_HOST,
