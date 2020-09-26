@@ -6,7 +6,7 @@ export class AuthController {
   @Get('/login')
   public async login(@Req() request: Request, @Res() response: Response) {
     const localEnv = process.env.NODE_ENV === 'development';
-    const token = 'abcdef';
+    const token = 'rtyq';
     response.cookie('refresh_token', token, {
       domain: 'jobs-tracker.localhost', // Needed for cookie to appear in browser
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
