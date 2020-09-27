@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
@@ -9,6 +9,12 @@ export class UserService {
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>
   ) {}
+
+  public async findUserById(id: string): Promise<UserEntity> {
+    return this.userRepo.findOneOrFail(id).catch((e) => {
+      throw new NotFoundException(`User with id ${id} not found`);
+    });
+  }
 
   public async findAll(): Promise<UserEntity[]> {
     return this.userRepo.find();
