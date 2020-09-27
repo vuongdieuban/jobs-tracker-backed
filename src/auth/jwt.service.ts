@@ -35,15 +35,12 @@ export class JwtService {
 
   public async isRefreshTokenLinkedToToken(refreshToken: RefreshTokenEntity, jwtId: string) {
     if (!refreshToken) return false;
-
     if (refreshToken.jwtId !== jwtId) return false;
-
     return true;
   }
 
   public async isRefreshTokenExpired(refreshToken: RefreshTokenEntity) {
     if (moment().isAfter(refreshToken.expiryDate)) return true;
-
     return false;
   }
 
@@ -72,7 +69,6 @@ export class JwtService {
 
   public async invalidateRefreshToken(refreshToken: RefreshTokenEntity) {
     refreshToken.invalidated = true;
-
     await this.refreshTokenRepo.save(refreshToken);
   }
 
@@ -95,7 +91,6 @@ export class JwtService {
     const refreshToken = await this.generateRefreshTokenForUserAndToken(user, jwtId);
 
     // link that token with the refresh token
-
     return { token, refreshToken };
   }
 

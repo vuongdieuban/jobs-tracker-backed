@@ -1,11 +1,14 @@
-import { Controller, Get, Req, Res } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Response } from 'express';
+import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
-  @Get('/login')
-  public async login(@Req() request: Request, @Res() response: Response) {
-    // const body = req.body
+  constructor(private readonly authService: AuthService) {}
+
+  @Post('/login')
+  public async login(@Body() payload: LoginDto, @Res() response: Response) {
     const localEnv = process.env.NODE_ENV === 'development';
     const token = 'rtyq';
     response.cookie('refresh_token', token, {
