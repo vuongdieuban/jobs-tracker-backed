@@ -7,6 +7,7 @@ import { JobApplicationStatusModule } from './job-application-status/job-applica
 import { JobApplicationModule } from './job-application/job-application.module';
 import { JobPostModule } from './job-post/job-post.module';
 import { PlatformModule } from './platform/platform.module';
+import { SharedModule } from './shared/shared.module';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -19,7 +20,8 @@ import { UserModule } from './user/user.module';
     JobApplicationModule,
     JobApplicationStatusModule,
     UserModule,
-    AuthModule
+    AuthModule,
+    SharedModule
   ],
   controllers: [],
   providers: [AppGateway]
