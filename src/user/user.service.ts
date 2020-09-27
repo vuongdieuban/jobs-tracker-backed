@@ -13,4 +13,8 @@ export class UserService {
   public async findAll(): Promise<UserEntity[]> {
     return this.userRepo.find();
   }
+
+  public async findUserByEmail(userEmail: string): Promise<UserEntity> {
+    return this.userRepo.findOne({ where: { email: userEmail } });
+  }
 }
