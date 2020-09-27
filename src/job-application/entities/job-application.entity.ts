@@ -1,6 +1,6 @@
-import { AbstractEntity } from 'src/common/abstract.entity';
 import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
 import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
+import { AbstractEntity } from 'src/shared/entities/abstract.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Column, Entity, ManyToOne, Unique } from 'typeorm';
 

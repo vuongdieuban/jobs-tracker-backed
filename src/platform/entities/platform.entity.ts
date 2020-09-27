@@ -1,5 +1,5 @@
-import { AbstractEntity } from 'src/common/abstract.entity';
 import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
+import { AbstractEntity } from 'src/shared/entities/abstract.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity()
