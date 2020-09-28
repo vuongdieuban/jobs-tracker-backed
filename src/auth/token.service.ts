@@ -30,6 +30,7 @@ export class TokenService {
   }
 
   public getAccessTokenId(token: string) {
+    // jti is the id of this token, meta data from the payload
     const decodedToken = jwt.decode(token);
     return decodedToken['jti'];
   }

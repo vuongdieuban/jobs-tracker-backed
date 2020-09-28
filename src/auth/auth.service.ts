@@ -16,14 +16,10 @@ export class AuthService {
     });
   }
 
-  async login(accessToken: string): Promise<CredentialsTokenDto> {
-    const email = await this.googleOAuth(accessToken);
-
-    // const {} = this.tokenService.generateAccessTokenAndRefreshToken(user)
-    return {
-      accessToken: '',
-      refreshToken: ''
-    };
+  async login(googleAccessToken: string): Promise<CredentialsTokenDto> {
+    const email = await this.googleOAuth(googleAccessToken);
+    const user = await this.userService.getOrCreateUser(email);
+    return this.tokenService.generateAccessTokenAndRefreshToken(user);
   }
 
   async validateUser(userEmail: string) {
@@ -39,7 +35,7 @@ export class AuthService {
     const googleTokenData = await this.oauth2Client.getTokenInfo(accessToken).catch((e) => {
       throw new UnauthorizedException('Invalid Token');
     });
-    console.log('Google Data', googleTokenData);
+
     const { email, expiry_date } = googleTokenData;
     const expiryDate = Math.round(expiry_date / 1000); // convert from milliseconds to seconds
     const currentTime = moment().unix(); // in seconds

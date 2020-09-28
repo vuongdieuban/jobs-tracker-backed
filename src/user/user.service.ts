@@ -24,5 +24,13 @@ export class UserService {
     return this.userRepo.findOne({ where: { email: userEmail } });
   }
 
-  public async getOrCreateUser(userEmail: string) {}
+  public async getOrCreateUser(userEmail: string): Promise<UserEntity> {
+    let user = await this.userRepo.findOne({ where: { email: userEmail } });
+    if (user) {
+      return user;
+    }
+
+    user = this.userRepo.create({ email: userEmail });
+    return this.userRepo.save(user);
+  }
 }

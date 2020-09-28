@@ -19,6 +19,6 @@ export class AuthController {
       httpOnly: true // Cookie can't be accessed by javaScript
     });
 
-    response.json({ accessToken });
+    response.json({ accessToken, refreshToken });
   }
 }
