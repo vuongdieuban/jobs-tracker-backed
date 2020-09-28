@@ -19,6 +19,7 @@ export class AuthController {
       httpOnly: true // Cookie can't be accessed by javaScript
     });
 
+    // TODO: should return user object here as well
     response.json({ accessToken });
   }
 

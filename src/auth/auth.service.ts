@@ -24,6 +24,7 @@ export class AuthService {
 
   private async googleOAuth(accessToken: string): Promise<string> {
     this.oauth2Client.setCredentials({ access_token: accessToken });
+
     const googleTokenData = await this.oauth2Client.getTokenInfo(accessToken).catch((e) => {
       throw new UnauthorizedException('Invalid Token');
     });
