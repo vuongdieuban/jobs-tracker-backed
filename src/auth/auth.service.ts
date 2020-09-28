@@ -22,14 +22,6 @@ export class AuthService {
     return this.tokenService.generateAccessTokenAndRefreshToken(user);
   }
 
-  async validateUser(userEmail: string) {
-    const user = await this.userService.findUserByEmail(userEmail);
-    if (!user) {
-      return null;
-    }
-    return user;
-  }
-
   private async googleOAuth(accessToken: string): Promise<string> {
     this.oauth2Client.setCredentials({ access_token: accessToken });
     const googleTokenData = await this.oauth2Client.getTokenInfo(accessToken).catch((e) => {

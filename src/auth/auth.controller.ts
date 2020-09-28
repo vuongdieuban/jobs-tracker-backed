@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -19,6 +19,12 @@ export class AuthController {
       httpOnly: true // Cookie can't be accessed by javaScript
     });
 
-    response.json({ accessToken, refreshToken });
+    response.json({ accessToken });
   }
+
+  @Post('/logout')
+  public async logout() {}
+
+  @Post('/refresh-token')
+  public async refreshToken() {}
 }

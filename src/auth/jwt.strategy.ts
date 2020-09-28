@@ -9,17 +9,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: 'TEST_SECRET'
+      secretOrKey: process.env.JWT_SECRET
     });
   }
 
+  // Decode and verify the token is done by passport, if success then it calls the validate method, pass in the payload of decoded token
   // Passport will build a user object based on the return value of our validate() method, and attach it as a property on the Request object.
   // payload is the decoded jwt payload
   async validate(payload: any) {
-    const user = await this.authService.validateUser(payload.email);
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-    return user;
+    return { id: payload.uerId, email: payload.email };
   }
 }
