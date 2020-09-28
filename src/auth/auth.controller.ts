@@ -1,14 +1,28 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Post, Res, UnauthorizedException } from '@nestjs/common';
 import { Response } from 'express';
+import { OAuth2Client } from 'google-auth-library';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  private readonly oauth2Client: OAuth2Client;
+
+  constructor(private readonly authService: AuthService) {
+    this.oauth2Client = new OAuth2Client({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+    });
+  }
 
   @Post('/login')
   public async login(@Body() payload: LoginDto, @Res() response: Response) {
+    const { accessToken } = payload;
+    this.oauth2Client.setCredentials({ access_token: accessToken });
+    const data = await this.oauth2Client.getTokenInfo(accessToken).catch((e) => {
+      throw new UnauthorizedException('Invalid Token');
+    });
+
     const localEnv = process.env.NODE_ENV === 'development';
     const token = 'rtyq';
     response.cookie('refresh_token', token, {
@@ -19,6 +33,6 @@ export class AuthController {
       httpOnly: true // Cookie can't be accessed by javaScript
     });
 
-    response.json({ token });
+    response.json({ token, data });
   }
 }
