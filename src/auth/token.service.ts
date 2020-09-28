@@ -1,14 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { CredentialsTokenDto } from './dto/credentials-token.dto';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
 
 @Injectable()
-export class JwtService {
+export class TokenService {
   private readonly JWT_SECRET = process.env.JWT_SECRET;
 
   constructor(
@@ -28,14 +29,14 @@ export class JwtService {
     }
   }
 
-  public getJwtId(token: string) {
+  public getAccessTokenId(token: string) {
     const decodedToken = jwt.decode(token);
     return decodedToken['jti'];
   }
 
-  public async isRefreshTokenLinkedToToken(refreshToken: RefreshTokenEntity, jwtId: string) {
+  public async isRefreshTokenLinkedToAccessToken(refreshToken: RefreshTokenEntity, accessTokenId: string) {
     if (!refreshToken) return false;
-    if (refreshToken.jwtId !== jwtId) return false;
+    if (refreshToken.accessTokenId !== accessTokenId) return false;
     return true;
   }
 
@@ -48,21 +49,18 @@ export class JwtService {
     return refreshToken.used || refreshToken.invalidated;
   }
 
-  public getJwtPayloadValueByKey(token: string, key: string) {
-    const decodedToken = jwt.decode(token);
-    return decodedToken[key];
+  public getAccessTokenPayload(token: string) {
+    return jwt.decode(token);
   }
 
-  public async getRefreshTokenByJwtToken(token: string) {
-    // retrieve the jti/jwt-id from that token
-    const jti = this.getJwtId(token);
+  public async getRefreshTokenByAccessToken(accessToken: string) {
+    const tokenId = this.getAccessTokenId(accessToken);
 
-    // retrieve the refresh token that points to this jwt-id
     const refreshToken = await this.refreshTokenRepo.findOne({
-      jwtId: jti
+      accessTokenId: tokenId
     });
 
-    if (!refreshToken) throw new Error('Refresh token does not exist');
+    if (!refreshToken) throw new BadRequestException('Refresh token does not exist');
 
     return refreshToken;
   }
@@ -72,39 +70,35 @@ export class JwtService {
     await this.refreshTokenRepo.save(refreshToken);
   }
 
-  public async generateTokenAndRefreshToken(user: UserEntity) {
-    // specify a payload thats holds the users id (and) email
+  public async generateAccessTokenAndRefreshToken(user: UserEntity): Promise<CredentialsTokenDto> {
     const payload = {
-      id: user.id,
+      userId: user.id,
       email: user.email
     };
 
-    const jwtId = uuidv4();
+    const accessTokenId = uuidv4();
 
-    const token = jwt.sign(payload, this.JWT_SECRET, {
-      expiresIn: '1h', // specify when does the token expires 1hour
-      jwtid: jwtId, // specify jwtid (an id of that token) (needed for the refresh token, as a refresh token only points to one single unique token)
-      subject: user.id.toString() // the subject should be the users id (primary key)
+    const accessToken = jwt.sign(payload, this.JWT_SECRET, {
+      expiresIn: '1h',
+      // accessTokenId needed for the refresh token, as a refresh token only points to one single unique access token
+      jwtid: accessTokenId,
+      // the subject should be the users id (primary key)
+      subject: user.id
     });
 
-    // create a refresh token
-    const refreshToken = await this.generateRefreshTokenForUserAndToken(user, jwtId);
+    const refreshToken = await this.generateRefreshTokenForUserAndAccessToken(user, accessTokenId);
 
-    // link that token with the refresh token
-    return { token, refreshToken };
+    return { accessToken, refreshToken };
   }
 
-  private async generateRefreshTokenForUserAndToken(user: UserEntity, jwtId: string) {
-    // create a new record of refresh token
+  private async generateRefreshTokenForUserAndAccessToken(user: UserEntity, accessTokenId: string) {
     const refreshToken = new RefreshTokenEntity();
     refreshToken.user = user;
-    refreshToken.jwtId = jwtId;
-    // set the expiry date of the refresh token for example 7 days
+    refreshToken.accessTokenId = accessTokenId;
     refreshToken.expiryDate = moment()
       .add(7, 'd')
       .toDate();
 
-    // store this refresh token
     await this.refreshTokenRepo.save(refreshToken);
 
     return refreshToken.id;

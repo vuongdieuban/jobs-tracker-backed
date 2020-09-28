@@ -23,4 +23,6 @@ export class UserService {
   public async findUserByEmail(userEmail: string): Promise<UserEntity> {
     return this.userRepo.findOne({ where: { email: userEmail } });
   }
+
+  public async getOrCreateUser(userEmail: string) {}
 }

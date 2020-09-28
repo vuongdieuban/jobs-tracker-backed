@@ -7,8 +7,7 @@ export async function userSeed(manager: EntityManager): Promise<UserEntity> {
   const user = repo.create({
     lastName: 'vuong',
     firstName: 'ban',
-    email: 'vuongdieuban@gmail.com',
-    googleId: 'abc123'
+    email: 'vuongdieuban@gmail.com'
   });
 
   return repo.save(user);

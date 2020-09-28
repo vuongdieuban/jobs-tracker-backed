@@ -213,7 +213,6 @@ export class JobApplicationService {
   private parseFullApplicationResponse(application: JobApplicationEntity): JobApplicationEntity {
     delete application.status?.jobApplications;
     delete application.user.email;
-    delete application.user.googleId;
     return application;
   }
 }
