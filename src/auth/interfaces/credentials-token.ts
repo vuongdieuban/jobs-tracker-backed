@@ -1,4 +1,4 @@
-export class CredentialsTokenDto {
+export interface CredentialsTokens {
   accessToken: string;
   refreshToken: string;
 }

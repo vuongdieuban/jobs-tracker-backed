@@ -1,8 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import * as moment from 'moment';
+import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
-import { CredentialsTokenDto } from './dto/credentials-token.dto';
+import { CredentialsTokens } from './interfaces/credentials-token';
 import { TokenService } from './token.service';
 
 @Injectable()
@@ -16,10 +17,11 @@ export class AuthService {
     });
   }
 
-  async login(googleAccessToken: string): Promise<CredentialsTokenDto> {
+  async login(googleAccessToken: string): Promise<[UserEntity, CredentialsTokens]> {
     const email = await this.googleOAuth(googleAccessToken);
     const user = await this.userService.getOrCreateUser(email);
-    return this.tokenService.generateAccessTokenAndRefreshToken(user);
+    const credentialsTokens = await this.tokenService.generateAccessTokenAndRefreshToken(user);
+    return [user, credentialsTokens];
   }
 
   private async googleOAuth(accessToken: string): Promise<string> {

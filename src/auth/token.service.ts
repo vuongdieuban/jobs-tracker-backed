@@ -5,8 +5,9 @@ import * as moment from 'moment';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { CredentialsTokenDto } from './dto/credentials-token.dto';
 import { RefreshTokenEntity } from './entities/refresh-token.entity';
+import { AccessTokenPayload } from './interfaces/access-token-payload';
+import { CredentialsTokens } from './interfaces/credentials-token';
 
 @Injectable()
 export class TokenService {
@@ -71,8 +72,8 @@ export class TokenService {
     await this.refreshTokenRepo.save(refreshToken);
   }
 
-  public async generateAccessTokenAndRefreshToken(user: UserEntity): Promise<CredentialsTokenDto> {
-    const payload = {
+  public async generateAccessTokenAndRefreshToken(user: UserEntity): Promise<CredentialsTokens> {
+    const payload: AccessTokenPayload = {
       userId: user.id,
       email: user.email
     };
