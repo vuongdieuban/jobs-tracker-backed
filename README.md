@@ -15,7 +15,8 @@ Change NODE_ENV to production before running migration manually
 
 ### Step 1.
 
-Generate an `ormconfig.json` so we can use typeorm cli to run migration commands.
+Generate an `ormconfig.json` so we can use typeorm cli to run migration commands.  
+Only need to run this step once to generate the ormconfig.json file, subsequent migration can skip this step.
 
 ```bash
 $ npm run pretypeorm
