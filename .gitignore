@@ -1,5 +1,7 @@
 package-lock.json
 ormconfig.json
+seeds-ormconfig.json
+
 # env
 .env
 

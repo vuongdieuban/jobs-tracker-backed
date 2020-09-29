@@ -1,5 +1,5 @@
+import { UserEntity } from 'src/user/entities/user.entity';
 import { EntityManager } from 'typeorm';
-import { UserEntity } from '../../user/entities/user.entity';
 
 export async function userSeed(manager: EntityManager): Promise<UserEntity> {
   const repo = manager.getRepository<UserEntity>(UserEntity);

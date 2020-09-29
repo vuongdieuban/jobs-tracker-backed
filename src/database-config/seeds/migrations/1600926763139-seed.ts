@@ -1,5 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { runDbSeed } from '../seeds';
+import { runDbSeed } from '../utils';
 
 export class seed1600926763139 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

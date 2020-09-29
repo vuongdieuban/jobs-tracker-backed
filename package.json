@@ -23,7 +23,9 @@
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "typeorm:migration:create": "npm run typeorm -- migration:create -n",
     "typeorm:migration:generate": "npm run typeorm -- migration:generate -n",
-    "typeorm:migration:run": "npm run typeorm -- migration:run"
+    "typeorm:migration:run": "npm run typeorm -- migration:run",
+    "typeorm:seeds:create": "npm run typeorm -- migration:create -f seeds-ormconfig.json -c seeds -n",
+    "typeorm:seeds:run": "npm run typeorm -- migration:run -f seeds-ormconfig.json -c seeds"
   },
   "dependencies": {
     "@nestjs/common": "^7.0.0",

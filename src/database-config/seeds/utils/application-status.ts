@@ -1,5 +1,5 @@
+import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
 import { EntityManager } from 'typeorm';
-import { JobApplicationStatusEntity } from '../../job-application-status/entities/job-application-status.entity';
 
 export async function applicationStatusSeed(manager: EntityManager): Promise<JobApplicationStatusEntity[]> {
   const repo = manager.getRepository<JobApplicationStatusEntity>(JobApplicationStatusEntity);
