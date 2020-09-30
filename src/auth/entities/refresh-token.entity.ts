@@ -15,9 +15,6 @@ export class RefreshTokenEntity extends AbstractEntity {
   accessTokenId: string;
 
   @Column({ default: false })
-  used: boolean;
-
-  @Column({ default: false })
   invalidated: boolean;
 
   @Column()
