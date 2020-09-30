@@ -58,7 +58,6 @@ export class TokenService {
 
   public async getRefreshTokenByAccessToken(accessToken: string): Promise<RefreshTokenEntity> {
     const tokenId = this.getAccessTokenId(accessToken);
-
     const refreshToken = await this.refreshTokenRepo.findOne({
       accessTokenId: tokenId
     });
@@ -66,7 +65,6 @@ export class TokenService {
     if (!refreshToken) {
       throw new BadRequestException('Refresh token does not exist');
     }
-
     return refreshToken;
   }
 
@@ -78,7 +76,6 @@ export class TokenService {
   public async generateAccessTokenAndRefreshToken(user: UserEntity): Promise<CredentialsTokens> {
     const { signedAccessToken, accessTokenId } = this.generateAccessToken(user);
     const signedRefreshToken = await this.generateRefreshToken(user, accessTokenId);
-
     return { accessToken: signedAccessToken, refreshToken: signedRefreshToken };
   }
 

@@ -4,6 +4,7 @@ import { UserEntity } from 'src/user/entities/user.entity';
 import { AuthService } from './auth.service';
 import { LoginRequestDto } from './dto/request/login-request.dto';
 import { LoginResponseDto } from './dto/response/login-response.dto';
+import { CredentialsTokens } from './interfaces/credentials-token';
 
 @Controller('auth')
 export class AuthController {
@@ -30,18 +31,19 @@ export class AuthController {
   }
 
   @Post('/logout')
-  public async logout() {
+  public async logout(): Promise<string> {
     // TODO:
     // Get the refresh token id from the cookie,
     // Get the access token from bearer authorization header (even if the access token is expired thats fine)
     // validate that the refresh token exist in database
     // Validate the refresh token has the same accessTokenId as the one in Bear Auth header
     // and then set refresh token invalidated to true, save, then remove the fresh token from the cookie
+    await this.authService.logout();
     return 'logout success';
   }
 
   @Post('/refresh-token')
-  public async refreshToken() {
+  public async refreshToken(): Promise<CredentialsTokens> {
     // TODO:
     // Get the refresh token id from the cookie,
     // Get the access token from bearer authorization header (don't need to check for expiry date)
@@ -50,6 +52,7 @@ export class AuthController {
     // and then set refresh token invalidated to true, save;
     // Generate a new refresh token and access token pair.
     // return new access token, set the new refresh token in teh cookie
+    return this.authService.refreshToken();
   }
 
   private sanitizeUser(user: UserEntity) {

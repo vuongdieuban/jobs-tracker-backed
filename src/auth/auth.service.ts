@@ -17,11 +17,19 @@ export class AuthService {
     });
   }
 
-  async login(googleAccessToken: string): Promise<[UserEntity, CredentialsTokens]> {
+  public async login(googleAccessToken: string): Promise<[UserEntity, CredentialsTokens]> {
     const email = await this.googleOAuth(googleAccessToken);
     const user = await this.userService.getOrCreateUser(email);
     const credentialsTokens = await this.tokenService.generateAccessTokenAndRefreshToken(user);
     return [user, credentialsTokens];
+  }
+
+  public async logout(): Promise<void> {
+    return;
+  }
+
+  public async refreshToken(): Promise<CredentialsTokens> {
+    return;
   }
 
   private async googleOAuth(accessToken: string): Promise<string> {
