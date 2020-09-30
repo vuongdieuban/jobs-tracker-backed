@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import * as moment from 'moment';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -24,8 +24,24 @@ export class AuthService {
     return [user, credentialsTokens];
   }
 
-  public async logout(): Promise<void> {
-    return;
+  public async logout(signedAccessToken: string, signedRefreshToken: string): Promise<void> {
+    const isAccessTokenValid = this.tokenService.isTokenValid(signedAccessToken, true);
+    const isRefreshTokenValid = this.tokenService.isTokenValid(signedRefreshToken, true);
+    if (!(isAccessTokenValid && isRefreshTokenValid)) {
+      throw new UnauthorizedException('Invalid Token');
+    }
+
+    const refreshToken = await this.tokenService.getRefreshTokenByAccessToken(signedAccessToken);
+    console.log('Refresh token', refreshToken);
+    if (!refreshToken) {
+      throw new UnauthorizedException('Access Token and Refresh Token do not match');
+    }
+
+    const isRefreshTokenInvalidated = this.tokenService.isRefreshTokenInvalidated(refreshToken);
+    if (isRefreshTokenInvalidated) {
+      throw new BadRequestException('Already logged out');
+    }
+    await this.tokenService.invalidateRefreshToken(refreshToken);
   }
 
   public async refreshToken(): Promise<CredentialsTokens> {
@@ -36,7 +52,7 @@ export class AuthService {
     this.oauth2Client.setCredentials({ access_token: accessToken });
 
     const googleTokenData = await this.oauth2Client.getTokenInfo(accessToken).catch((e) => {
-      throw new UnauthorizedException('Invalid Token');
+      throw new UnauthorizedException('Invalid Google Oauth Access Token');
     });
 
     const { email, expiry_date } = googleTokenData;

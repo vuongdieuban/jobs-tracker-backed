@@ -56,14 +56,14 @@ export class TokenService {
     return jwt.decode(token) as AccessTokenPayload;
   }
 
-  public async getRefreshTokenByAccessToken(accessToken: string): Promise<RefreshTokenEntity> {
+  public async getRefreshTokenByAccessToken(accessToken: string): Promise<RefreshTokenEntity | null> {
     const tokenId = this.getAccessTokenId(accessToken);
     const refreshToken = await this.refreshTokenRepo.findOne({
-      accessTokenId: tokenId
+      where: { accessTokenId: tokenId }
     });
 
     if (!refreshToken) {
-      throw new BadRequestException('Refresh token does not exist');
+      return null;
     }
     return refreshToken;
   }
