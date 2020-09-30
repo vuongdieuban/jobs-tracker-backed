@@ -32,7 +32,6 @@ export class AuthService {
     }
 
     const refreshToken = await this.tokenService.getRefreshTokenByAccessToken(signedAccessToken);
-    console.log('Refresh token', refreshToken);
     if (!refreshToken) {
       throw new UnauthorizedException('Access Token and Refresh Token do not match');
     }
