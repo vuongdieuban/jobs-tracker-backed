@@ -4,7 +4,6 @@ import { UserEntity } from 'src/user/entities/user.entity';
 import { AuthService } from './auth.service';
 import { LoginRequestDto } from './dto/request/login-request.dto';
 import { LoginResponseDto } from './dto/response/login-response.dto';
-import { CredentialsTokens } from './interfaces/credentials-token';
 
 @Controller('auth')
 export class AuthController {
@@ -33,8 +32,9 @@ export class AuthController {
   }
 
   @Post('/refresh-token')
-  public async refreshToken(): Promise<CredentialsTokens> {
-    return this.authService.refreshToken();
+  public async refreshToken(@Req() request: Request, @Res() response: Response): Promise<void> {
+    const refreshToken = this.extractRefreshTokenFromCookie(request);
+    await this.authService.refreshToken();
   }
 
   private sanitizeUser(user: UserEntity) {
