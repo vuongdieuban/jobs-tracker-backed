@@ -38,12 +38,20 @@ export class AuthService {
 
     const isRefreshTokenInvalidated = this.tokenService.isRefreshTokenInvalidated(refreshToken);
     if (isRefreshTokenInvalidated) {
-      throw new BadRequestException('Already logged out');
+      throw new UnauthorizedException('Token Invalidated');
     }
     await this.tokenService.invalidateRefreshToken(refreshToken);
   }
 
   public async refreshToken(): Promise<CredentialsTokens> {
+    // TODO:
+    // Get the refresh token id from the cookie,\
+    // Check to see refresh token has expired, it does then throw error, client needs to go to login workflow
+    // Validate that the refresh token exist in database
+    // Validate that token has not been invalidated, if invalidated, throw, redirect to login
+    // If all pass then set this refresh token invalidated to true, save;
+    // Generate a new refresh token and access token pair.
+    // return new access token, set the new refresh token in teh cookie
     return;
   }
 
@@ -59,7 +67,7 @@ export class AuthService {
     const currentTime = moment().unix(); // in seconds
 
     if (currentTime > expiryDate) {
-      throw new UnauthorizedException('Invalid Token');
+      throw new UnauthorizedException('Token expired');
     }
 
     return email;
