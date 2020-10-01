@@ -35,9 +35,14 @@ export class TokenService {
     }
   }
 
-  public getAccessTokenId(token: string): string {
-    const decodedToken = jwt.decode(token) as AccessTokenPayload;
+  public getAccessTokenId(signedToken: string): string {
+    const decodedToken = jwt.decode(signedToken) as AccessTokenPayload;
     return decodedToken.accessTokenId;
+  }
+
+  public getRefreshTokenId(signedToken: string): string {
+    const decodedToken = jwt.decode(signedToken) as RefreshTokenPayload;
+    return decodedToken.refreshTokenId;
   }
 
   public isRefreshTokenLinkedToAccessToken(refreshToken: RefreshTokenEntity, accessTokenId: string): boolean {
@@ -62,6 +67,14 @@ export class TokenService {
       where: { accessTokenId: tokenId }
     });
 
+    if (!refreshToken) {
+      return null;
+    }
+    return refreshToken;
+  }
+
+  public async getRefreshTokenById(refreshTokenId: string): Promise<RefreshTokenEntity | null> {
+    const refreshToken = await this.refreshTokenRepo.findOne(refreshTokenId, { relations: ['user'] });
     if (!refreshToken) {
       return null;
     }

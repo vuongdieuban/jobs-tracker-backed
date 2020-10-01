@@ -31,28 +31,52 @@ export class AuthService {
       throw new UnauthorizedException('Invalid Token');
     }
 
-    const refreshToken = await this.tokenService.getRefreshTokenByAccessToken(signedAccessToken);
+    const refreshTokenId = this.tokenService.getRefreshTokenId(signedRefreshToken);
+    const accessTokenId = this.tokenService.getAccessTokenId(signedAccessToken);
+    const refreshToken = await this.tokenService.getRefreshTokenById(refreshTokenId);
+    const isRefreshTokenInvalidated = this.tokenService.isRefreshTokenInvalidated(refreshToken);
+
     if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
+
+    if (accessTokenId !== refreshToken.accessTokenId) {
       throw new UnauthorizedException('Access Token and Refresh Token do not match');
     }
 
-    const isRefreshTokenInvalidated = this.tokenService.isRefreshTokenInvalidated(refreshToken);
     if (isRefreshTokenInvalidated) {
-      throw new UnauthorizedException('Token Invalidated');
+      throw new UnauthorizedException('Refresh Token Invalidated');
     }
     await this.tokenService.invalidateRefreshToken(refreshToken);
   }
 
-  public async refreshToken(): Promise<CredentialsTokens> {
-    // TODO:
-    // Get the refresh token id from the cookie,\
-    // Check to see refresh token has expired, it does then throw error, client needs to go to login workflow
-    // Validate that the refresh token exist in database
-    // Validate that token has not been invalidated, if invalidated, throw, redirect to login
-    // If all pass then set this refresh token invalidated to true, save;
-    // Generate a new refresh token and access token pair.
-    // return new access token, set the new refresh token in teh cookie
-    return;
+  public async renewAuthToken(signedRefreshToken: string): Promise<[UserEntity, CredentialsTokens]> {
+    // since we are not ignore exp data, expired refresh token will be invalid
+    const isRefreshTokenValid = this.tokenService.isTokenValid(signedRefreshToken);
+    if (!isRefreshTokenValid) {
+      throw new UnauthorizedException('Invalid Refresh Token');
+    }
+
+    const refreshTokenId = this.tokenService.getRefreshTokenId(signedRefreshToken);
+    const refreshToken = await this.tokenService.getRefreshTokenById(refreshTokenId);
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh Token not found');
+    }
+
+    if (this.tokenService.isRefreshTokenInvalidated(refreshToken)) {
+      throw new UnauthorizedException('Refresh Token invalidated');
+    }
+
+    await this.tokenService.invalidateRefreshToken(refreshToken);
+
+    const { user } = refreshToken;
+    const data = await this.tokenService.generateAccessTokenAndRefreshToken(refreshToken.user);
+
+    const updatedCredentials: CredentialsTokens = {
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken
+    };
+    return [user, updatedCredentials];
   }
 
   private async googleOAuth(accessToken: string): Promise<string> {

@@ -13,11 +13,12 @@ export class AuthController {
   @Post('/login')
   public async login(@Body() payload: LoginRequestDto, @Res() response: Response): Promise<void> {
     const [user, { accessToken, refreshToken }] = await this.authService.login(payload.accessToken);
-    const cookieOptions = this.getCookieOptions();
-    response.cookie(this.REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieOptions);
 
     // since we return response object it doesn't go thru transform interceptor to remove the meta data so we have to manually sanitize it
     const sanitzedUser = this.sanitizeUser(user);
+    const cookieOptions = this.getCookieOptions();
+
+    response.cookie(this.REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieOptions);
     response.json({ accessToken, user: sanitzedUser } as LoginResponseDto);
   }
 
@@ -25,16 +26,24 @@ export class AuthController {
   public async logout(@Req() request: Request, @Res() response: Response): Promise<void> {
     const accessToken = this.extractAccessTokenFromAuthHeader(request);
     const refreshToken = this.extractRefreshTokenFromCookie(request);
+
     await this.authService.logout(accessToken, refreshToken);
     const cookieOptions = this.getCookieOptions();
+
     response.clearCookie(this.REFRESH_TOKEN_COOKIE_NAME, { ...cookieOptions, maxAge: 0 });
     response.send('logout success');
   }
 
-  @Post('/refresh-token')
-  public async refreshToken(@Req() request: Request, @Res() response: Response): Promise<void> {
-    const refreshToken = this.extractRefreshTokenFromCookie(request);
-    await this.authService.refreshToken();
+  @Post('/renew-token')
+  public async renewAuthToken(@Req() request: Request, @Res() response: Response): Promise<void> {
+    const existedRefreshToken = this.extractRefreshTokenFromCookie(request);
+    const [user, { refreshToken, accessToken }] = await this.authService.renewAuthToken(existedRefreshToken);
+
+    const sanitzedUser = this.sanitizeUser(user);
+    const cookieOptions = this.getCookieOptions();
+
+    response.cookie(this.REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieOptions);
+    response.json({ accessToken, user: sanitzedUser });
   }
 
   private sanitizeUser(user: UserEntity) {
