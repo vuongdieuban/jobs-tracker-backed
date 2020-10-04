@@ -33,23 +33,22 @@ export class AuthService {
 
     const refreshTokenId = this.tokenService.getRefreshTokenId(signedRefreshToken);
     const refreshToken = await this.tokenService.getRefreshTokenById(refreshTokenId);
-    const isRefreshTokenInvalidated = this.tokenService.isRefreshTokenInvalidated(refreshToken);
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token not found');
     }
 
-    if (this.tokenService.isAccessTokenLinkToRefreshToken(signedAccessToken, refreshToken)) {
+    if (!this.tokenService.isAccessTokenLinkToRefreshToken(signedAccessToken, refreshToken)) {
       throw new UnauthorizedException('Access Token and Refresh Token do not match');
     }
 
-    if (isRefreshTokenInvalidated) {
+    if (this.tokenService.isRefreshTokenInvalidated(refreshToken)) {
       throw new UnauthorizedException('Refresh Token Invalidated');
     }
     await this.tokenService.invalidateRefreshToken(refreshToken);
   }
 
-  public async renewAuthToken(signedRefreshToken: string): Promise<[UserEntity, CredentialsTokens]> {
+  public async renewAccessToken(signedRefreshToken: string): Promise<[UserEntity, CredentialsTokens]> {
     const isRefreshTokenValid = this.tokenService.isTokenValid(signedRefreshToken, true);
     if (!isRefreshTokenValid) {
       throw new UnauthorizedException('Invalid Refresh Token');

@@ -35,9 +35,11 @@ export class AuthController {
   }
 
   @Post('/renew-token')
-  public async renewAuthToken(@Req() request: Request, @Res() response: Response): Promise<void> {
+  public async renewAccessToken(@Req() request: Request, @Res() response: Response): Promise<void> {
     const existedRefreshToken = this.extractRefreshTokenFromCookie(request);
-    const [user, { refreshToken, accessToken }] = await this.authService.renewAuthToken(existedRefreshToken);
+    const [user, { refreshToken, accessToken }] = await this.authService.renewAccessToken(
+      existedRefreshToken
+    );
 
     const sanitzedUser = this.sanitizeUser(user);
     const cookieOptions = this.getCookieOptions();
