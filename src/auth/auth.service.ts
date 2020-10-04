@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import * as moment from 'moment';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -32,7 +32,6 @@ export class AuthService {
     }
 
     const refreshTokenId = this.tokenService.getRefreshTokenId(signedRefreshToken);
-    const accessTokenId = this.tokenService.getAccessTokenId(signedAccessToken);
     const refreshToken = await this.tokenService.getRefreshTokenById(refreshTokenId);
     const isRefreshTokenInvalidated = this.tokenService.isRefreshTokenInvalidated(refreshToken);
 
@@ -40,7 +39,7 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token not found');
     }
 
-    if (accessTokenId !== refreshToken.accessTokenId) {
+    if (this.tokenService.isAccessTokenLinkToRefreshToken(signedAccessToken, refreshToken)) {
       throw new UnauthorizedException('Access Token and Refresh Token do not match');
     }
 
@@ -51,14 +50,14 @@ export class AuthService {
   }
 
   public async renewAuthToken(signedRefreshToken: string): Promise<[UserEntity, CredentialsTokens]> {
-    // since we are not ignore exp data, expired refresh token will be invalid
-    const isRefreshTokenValid = this.tokenService.isTokenValid(signedRefreshToken);
+    const isRefreshTokenValid = this.tokenService.isTokenValid(signedRefreshToken, true);
     if (!isRefreshTokenValid) {
       throw new UnauthorizedException('Invalid Refresh Token');
     }
 
     const refreshTokenId = this.tokenService.getRefreshTokenId(signedRefreshToken);
     const refreshToken = await this.tokenService.getRefreshTokenById(refreshTokenId);
+
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh Token not found');
     }
@@ -67,14 +66,17 @@ export class AuthService {
       throw new UnauthorizedException('Refresh Token invalidated');
     }
 
-    await this.tokenService.invalidateRefreshToken(refreshToken);
+    if (this.tokenService.isRefreshTokenExpired(refreshToken)) {
+      await this.tokenService.invalidateRefreshToken(refreshToken);
+      throw new UnauthorizedException('Refresh Token Expired');
+    }
 
     const { user } = refreshToken;
-    const data = await this.tokenService.generateAccessTokenAndRefreshToken(refreshToken.user);
+    const signedAccessToken = this.tokenService.generateAccessToken(user, refreshToken.id);
 
     const updatedCredentials: CredentialsTokens = {
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken
+      accessToken: signedAccessToken,
+      refreshToken: signedRefreshToken
     };
     return [user, updatedCredentials];
   }

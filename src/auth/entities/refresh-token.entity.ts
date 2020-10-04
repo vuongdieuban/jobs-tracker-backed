@@ -10,10 +10,6 @@ export class RefreshTokenEntity extends AbstractEntity {
   )
   user: UserEntity;
 
-  // This is a jwt token (one accessToken map to one refreshToken)
-  @Column({ unique: true })
-  accessTokenId: string;
-
   @Column({ default: false })
   invalidated: boolean;
 

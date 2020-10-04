@@ -1,5 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { access } from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -10,9 +11,9 @@ import { AccessTokenPayload } from './interfaces/access-token-payload';
 import { CredentialsTokens } from './interfaces/credentials-token';
 import { RefreshTokenPayload } from './interfaces/refresh-token-payload';
 
-interface GeneratedAccessToken {
-  accessTokenId: string;
-  signedAccessToken: string;
+interface GeneratedRefreshToken {
+  refreshTokenId: string;
+  signedRefreshToken: string;
 }
 
 @Injectable()
@@ -35,6 +36,11 @@ export class TokenService {
     }
   }
 
+  public isAccessTokenLinkToRefreshToken(signedAccessToken: string, refreshToken: RefreshTokenEntity) {
+    const accessToken = jwt.decode(signedAccessToken) as AccessTokenPayload;
+    return accessToken.refreshTokenId === refreshToken.id;
+  }
+
   public getAccessTokenId(signedToken: string): string {
     const decodedToken = jwt.decode(signedToken) as AccessTokenPayload;
     return decodedToken.accessTokenId;
@@ -43,10 +49,6 @@ export class TokenService {
   public getRefreshTokenId(signedToken: string): string {
     const decodedToken = jwt.decode(signedToken) as RefreshTokenPayload;
     return decodedToken.refreshTokenId;
-  }
-
-  public isRefreshTokenLinkedToAccessToken(refreshToken: RefreshTokenEntity, accessTokenId: string): boolean {
-    return refreshToken.accessTokenId === accessTokenId;
   }
 
   public isRefreshTokenExpired(refreshToken: RefreshTokenEntity): boolean {
@@ -59,18 +61,6 @@ export class TokenService {
 
   public getAccessTokenPayload(token: string): AccessTokenPayload {
     return jwt.decode(token) as AccessTokenPayload;
-  }
-
-  public async getRefreshTokenByAccessToken(accessToken: string): Promise<RefreshTokenEntity | null> {
-    const tokenId = this.getAccessTokenId(accessToken);
-    const refreshToken = await this.refreshTokenRepo.findOne({
-      where: { accessTokenId: tokenId }
-    });
-
-    if (!refreshToken) {
-      return null;
-    }
-    return refreshToken;
   }
 
   public async getRefreshTokenById(refreshTokenId: string): Promise<RefreshTokenEntity | null> {
@@ -87,34 +77,14 @@ export class TokenService {
   }
 
   public async generateAccessTokenAndRefreshToken(user: UserEntity): Promise<CredentialsTokens> {
-    const { signedAccessToken, accessTokenId } = this.generateAccessToken(user);
-    const signedRefreshToken = await this.generateRefreshToken(user, accessTokenId);
+    const { refreshTokenId, signedRefreshToken } = await this.generateRefreshToken(user);
+    const signedAccessToken = this.generateAccessToken(user, refreshTokenId);
     return { accessToken: signedAccessToken, refreshToken: signedRefreshToken };
   }
 
-  private generateAccessToken(user: UserEntity): GeneratedAccessToken {
-    const accessTokenId = uuidv4();
-    const payload: AccessTokenPayload = {
-      accessTokenId,
-      userId: user.id,
-      email: user.email
-    };
-
-    const signedAccessToken = jwt.sign(payload, this.JWT_SECRET, {
-      expiresIn: '1h',
-      // accessTokenId needed for the refresh token, as a refresh token only points to one single unique access token
-      jwtid: accessTokenId,
-      // the subject should be the users id (primary key)
-      subject: user.id
-    });
-
-    return { signedAccessToken, accessTokenId };
-  }
-
-  private async generateRefreshToken(user: UserEntity, accessTokenId: string): Promise<string> {
+  public async generateRefreshToken(user: UserEntity): Promise<GeneratedRefreshToken> {
     let refreshToken = new RefreshTokenEntity();
     refreshToken.user = user;
-    refreshToken.accessTokenId = accessTokenId;
     refreshToken.expiryDate = moment()
       .add(7, 'd')
       .toDate();
@@ -122,14 +92,32 @@ export class TokenService {
     refreshToken = await this.refreshTokenRepo.save(refreshToken);
 
     const payload: RefreshTokenPayload = {
-      accessTokenId,
       refreshTokenId: refreshToken.id,
       userId: user.id
     };
 
-    return jwt.sign(payload, this.JWT_SECRET, {
+    const signedRefreshToken = jwt.sign(payload, this.JWT_SECRET, {
       expiresIn: '7d',
       jwtid: refreshToken.id,
+      subject: user.id
+    });
+
+    return { refreshTokenId: refreshToken.id, signedRefreshToken };
+  }
+
+  public generateAccessToken(user: UserEntity, refreshTokenId: string): string {
+    const accessTokenId = uuidv4();
+    const payload: AccessTokenPayload = {
+      accessTokenId,
+      refreshTokenId,
+      userId: user.id,
+      email: user.email
+    };
+
+    return jwt.sign(payload, this.JWT_SECRET, {
+      expiresIn: '1h',
+      jwtid: accessTokenId,
+      // the subject should be the users id (primary key)
       subject: user.id
     });
   }
