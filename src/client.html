@@ -12,10 +12,10 @@
       crossorigin="anonymous"
     ></script>
     <script>
-      const socket = io('localhost:5000');
-      socket.on('connection', data => console.log('connected', data));
+      const socket = io('api.jobs-tracker.localhost');
+      socket.on('connection', (data) => console.log('connected', data));
 
-      socket.on('msgToClient', data => console.log('rcv from Server:', data));
+      socket.on('msgToClient', (data) => console.log('rcv from Server:', data));
 
       socket.emit('msgToServer');
     </script>

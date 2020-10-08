@@ -29,16 +29,17 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: Socket) {
-    this.logger.log('Client Disconnected');
+    this.logger.log('-------Client Disconnected------');
   }
 
   handleConnection(client: Socket, ...args: any[]) {
-    this.logger.log(`Client Connected: ${client.id}`);
+    this.logger.log(`-----Client Connected: ${client.id}-------`);
     // Add connected client to the connectedSocket map
   }
 
   @SubscribeMessage('msgToServer')
   handleMessage(client: Socket, payload: any): WsResponse<string> {
+    this.logger.log('-----------Receive message from client---------------');
     return { event: 'msgToClient', data: 'Hello from server' };
   }
 }
