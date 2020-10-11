@@ -97,7 +97,7 @@ export class TokenService {
     };
 
     const signedRefreshToken = jwt.sign(payload, this.JWT_SECRET, {
-      expiresIn: '10y',
+      expiresIn: '7d',
       jwtid: refreshToken.id,
       subject: user.id
     });
