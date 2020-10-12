@@ -9,7 +9,8 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
-  app.use(cors({ credentials: true, origin: 'http://localhost:3000' })); // TODO: In prod should be only our site
+  // TODO: In prod localhost should be changed to our site, indeed because extension make request on indeed
+  app.use(cors({ credentials: true, origin: ['http://localhost:3000', 'https://ca.indeed.com'] }));
 
   app.useGlobalPipes(new ValidationPipe());
 
