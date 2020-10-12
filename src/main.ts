@@ -9,7 +9,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
-  app.use(cors({ credentials: true, origin: 'http://jobs-tracker.localhost' }));
+  app.use(cors({ credentials: true, origin: 'http://localhost:3000' })); // TODO: In prod should be only our site
 
   app.useGlobalPipes(new ValidationPipe());
 
