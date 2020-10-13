@@ -2,6 +2,7 @@ import { CanActivate, Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import * as jwt from 'jsonwebtoken';
 import { AccessTokenPayload } from 'src/auth/interfaces/access-token-payload';
+import { TokenService } from './token.service';
 
 // https://github.com/nestjs/nest/issues/1254
 // @UseGuards(WsJwtGuard) // Or apply at the class level (ie: underneath @Injectable())
@@ -12,7 +13,7 @@ import { AccessTokenPayload } from 'src/auth/interfaces/access-token-payload';
 
 @Injectable()
 export class WebsocketAuthGuard implements CanActivate {
-  constructor() {}
+  constructor(private readonly tokenService: TokenService) {}
 
   async canActivate(context: any): Promise<boolean> {
     const client = context.switchToWs().getClient();
@@ -24,6 +25,7 @@ export class WebsocketAuthGuard implements CanActivate {
     } catch (err) {
       console.log('Websocket Guard Error', err);
       return false;
+      //  throw new WsException()
     }
   }
 }
