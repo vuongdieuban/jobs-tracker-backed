@@ -1,7 +1,5 @@
 import { CanActivate, Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import * as jwt from 'jsonwebtoken';
-import { AccessTokenPayload } from 'src/auth/interfaces/access-token-payload';
 import { TokenService } from './token.service';
 
 // https://github.com/nestjs/nest/issues/1254
@@ -9,7 +7,7 @@ import { TokenService } from './token.service';
 // @SubscribeMessage('events')
 // onEvent(client, data); // data.user contains your user if you set it in the guard (context.switchToWs().getData().user = decoded.userId;)
 
-// On Clientside, if Authtoken is renewed, re-connect with new header
+// On Clientside, if Authtoken is renewed, re-connect with token in query param
 
 @Injectable()
 export class WebsocketAuthGuard implements CanActivate {
@@ -17,9 +15,14 @@ export class WebsocketAuthGuard implements CanActivate {
 
   async canActivate(context: any): Promise<boolean> {
     const client = context.switchToWs().getClient();
-    const bearerToken = client.handshake.headers.authorization.split(' ')[1];
+    const token = client.handshake.query.authorization;
     try {
-      const decoded = jwt.verify(bearerToken, process.env.JWT_SECRET) as AccessTokenPayload;
+      const tokenValid = this.tokenService.isTokenValid(token);
+      if (!tokenValid) {
+        return false;
+      }
+      const decoded = this.tokenService.getAccessTokenPayload(token);
+
       context.switchToWs().getData().user = decoded.userId;
       return true;
     } catch (err) {

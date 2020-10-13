@@ -2,7 +2,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
-import * as cors from 'cors';
 import 'source-map-support/register';
 import { AppModule } from './app.module';
 
@@ -10,7 +9,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
   // TODO: In prod localhost should be changed to our site, indeed because extension make request on indeed
-  app.use(cors({ credentials: true, origin: ['http://localhost:3000', 'https://ca.indeed.com'] }));
+  app.enableCors({
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    origin: ['http://localhost:3000', 'https://ca.indeed.com'],
+    optionsSuccessStatus: 200
+  });
 
   app.useGlobalPipes(new ValidationPipe());
 

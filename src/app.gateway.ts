@@ -12,11 +12,9 @@ import { WebsocketAuthGuard } from './auth/websocket-auth.guard';
 import { JobPostStateService } from './job-post/job-post-state.service';
 import { UserService } from './user/user.service';
 
-// TODO: Put AuthGuard here if client send message in. Implemented in ./auth/websocket-auth.guard
-// Not needed currently because we only push event out, and already authenticate in handleConnection.
 // NOTE: AuthGuard does not affect handleConnection, ie: have to handle auth logic in handlConnection
-
-// @UseGuards(WebsocketAuthGuard)
+// AuthGuard will protect all the @SubscribeMessage
+@UseGuards(WebsocketAuthGuard)
 @WebSocketGateway()
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger: Logger = new Logger('AppGateway');
@@ -40,13 +38,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`-----Client Connected: ${client.id}-------`);
+    const authHeader = client.handshake.query.authorization;
+    console.log('Auth Header', authHeader);
     // Authenticated
     // Add connected client to the connectedSocket map
   }
 
   @SubscribeMessage('msgToServer')
   handleMessage(client: Socket, payload: any): WsResponse<string> {
-    this.logger.log('-----------Receive message from client---------------');
+    this.logger.log('-----------Receive message from client---------------', payload);
     return { event: 'msgToClient', data: 'Hello from server' };
   }
 }
