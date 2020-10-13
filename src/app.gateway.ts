@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger, UnauthorizedException, UseGuards } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -10,6 +10,7 @@ import { Socket } from 'socket.io';
 import { TokenService } from './auth/token.service';
 import { WebsocketAuthGuard } from './auth/websocket-auth.guard';
 import { JobPostStateService } from './job-post/job-post-state.service';
+import { UserEntity } from './user/entities/user.entity';
 import { UserService } from './user/user.service';
 
 // NOTE: AuthGuard does not affect handleConnection, ie: have to handle auth logic in handlConnection
@@ -36,17 +37,33 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log('-------Client Disconnected------');
   }
 
-  handleConnection(client: Socket, ...args: any[]) {
+  async handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`-----Client Connected: ${client.id}-------`);
-    const authHeader = client.handshake.query.authorization;
-    console.log('Auth Header', authHeader);
-    // Authenticated
-    // Add connected client to the connectedSocket map
+    const user = await this.authenticateConnection(client);
+    this.addClientToConnectedSockets(user.id, client);
   }
 
   @SubscribeMessage('msgToServer')
   handleMessage(client: Socket, payload: any): WsResponse<string> {
     this.logger.log('-----------Receive message from client---------------', payload);
     return { event: 'msgToClient', data: 'Hello from server' };
+  }
+
+  private async authenticateConnection(client: Socket): Promise<UserEntity> {
+    const token = client.handshake.query.authorization as string;
+    if (!this.tokenService.isTokenValid(token)) {
+      throw new UnauthorizedException('Token Invalid');
+    }
+    const decoded = this.tokenService.getAccessTokenPayload(token);
+    return this.userService.findUserById(decoded.userId);
+  }
+
+  private addClientToConnectedSockets(userId: string, client: Socket) {
+    const userSockets = this.connectedSockets.get(userId);
+    if (userSockets) {
+      userSockets.push(client);
+    } else {
+      this.connectedSockets.set(userId, [client]);
+    }
   }
 }

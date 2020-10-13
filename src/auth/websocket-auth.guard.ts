@@ -17,8 +17,7 @@ export class WebsocketAuthGuard implements CanActivate {
     const client = context.switchToWs().getClient();
     const token = client.handshake.query.authorization;
     try {
-      const tokenValid = this.tokenService.isTokenValid(token);
-      if (!tokenValid) {
+      if (!this.tokenService.isTokenValid(token)) {
         return false;
       }
       const decoded = this.tokenService.getAccessTokenPayload(token);
