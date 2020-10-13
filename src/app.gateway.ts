@@ -1,6 +1,6 @@
 // https://medium.com/@mohsenes/websocket-cluster-with-nestjs-and-redis-a18882d418ed
 
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -10,16 +10,13 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { JobPostStateService } from './job-post/job-post-state.service';
-
-interface ConnectedClientSockets {
-  [key: string]: Socket[]; // userId: [socketClient1, socketClient2, ...]
-}
+import { WebsocketAuthGuard } from './websocket/websocket-auth.guard';
 
 @WebSocketGateway()
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger: Logger = new Logger('AppGateway');
 
-  private readonly connectedSockets: ConnectedClientSockets = {};
+  private readonly connectedSockets = new Map<string, Socket[]>();
 
   constructor(private readonly jobpostStateService: JobPostStateService) {
     this.jobpostStateService.data$.subscribe((data) => {
@@ -32,8 +29,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log('-------Client Disconnected------');
   }
 
+  @UseGuards(WebsocketAuthGuard)
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`-----Client Connected: ${client.id}-------`);
+    // Authenticated
     // Add connected client to the connectedSocket map
   }
 

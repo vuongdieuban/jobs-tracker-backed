@@ -11,6 +11,7 @@ import { PlatformModule } from './platform/platform.module';
 import { TransformInterceptor } from './shared/interceptors/transform.interceptor';
 import { SharedModule } from './shared/shared.module';
 import { UserModule } from './user/user.module';
+import { WebsocketModule } from './websocket/websocket.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { UserModule } from './user/user.module';
     JobApplicationStatusModule,
     UserModule,
     AuthModule,
-    SharedModule
+    SharedModule,
+    WebsocketModule
   ],
   controllers: [],
   providers: [
