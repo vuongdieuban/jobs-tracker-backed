@@ -1,15 +1,16 @@
-import { Logger, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { BadGatewayException, Logger, UseGuards } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
+  WsException,
   WsResponse
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { TokenService } from './auth/token.service';
 import { WebsocketAuthGuard } from './auth/websocket-auth.guard';
-import { JobPostStateService } from './job-post/job-post-state.service';
+import { JobApplicationNotificationService } from './job-application/job-application-notification.service';
 import { UserEntity } from './user/entities/user.entity';
 import { UserService } from './user/user.service';
 
@@ -23,11 +24,11 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly connectedSockets = new Map<string, Socket[]>();
 
   constructor(
-    private readonly jobpostStateService: JobPostStateService,
+    private readonly applicationNotificationService: JobApplicationNotificationService,
     private readonly tokenService: TokenService,
     private readonly userService: UserService
   ) {
-    this.jobpostStateService.data$.subscribe((data) => {
+    this.applicationNotificationService.data$.subscribe((data) => {
       this.logger.log(`Rcv data in socket gateway: ${data}`);
       // go thru connectedSockets and push info to client (socketClient.send(payload))
     });
@@ -38,9 +39,16 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleConnection(client: Socket, ...args: any[]) {
-    this.logger.log(`-----Client Connected: ${client.id}-------`);
-    const user = await this.authenticateConnection(client);
-    this.addClientToConnectedSockets(user.id, client);
+    try {
+      this.logger.log(`-----Client Connected: ${client.id}-------`);
+      const user = await this.authenticateConnection(client);
+      this.addClientToConnectedSockets(user.id, client);
+    } catch (err) {
+      client.emit('exception', {
+        status: 'error',
+        message: err.message
+      });
+    }
   }
 
   @SubscribeMessage('msgToServer')
@@ -52,7 +60,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private async authenticateConnection(client: Socket): Promise<UserEntity> {
     const token = client.handshake.query.authorization as string;
     if (!this.tokenService.isTokenValid(token)) {
-      throw new UnauthorizedException('Token Invalid');
+      throw new Error('Token Invalid');
     }
     const decoded = this.tokenService.getAccessTokenPayload(token);
     return this.userService.findUserById(decoded.userId);

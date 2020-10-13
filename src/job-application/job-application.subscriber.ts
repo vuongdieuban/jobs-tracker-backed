@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Connection, EntitySubscriberInterface, EventSubscriber, InsertEvent } from 'typeorm';
-import { JobPostEntity } from './entities/job-post.entity';
-import { JobPostStateService } from './job-post-state.service';
+import { JobPostEntity } from '../job-post/entities/job-post.entity';
+import { JobApplicationNotificationService } from './job-application-notification.service';
 
 @Injectable()
 @EventSubscriber()
-export class JobPostSubscriber implements EntitySubscriberInterface<JobPostEntity> {
-
+export class JobApplicationSubscriber implements EntitySubscriberInterface<JobPostEntity> {
   constructor(
     private readonly connection: Connection,
-    private readonly jobstate: JobPostStateService
+    private readonly notificationService: JobApplicationNotificationService
   ) {
     // this allow dependency injection into EnitySubscriber.
     // Register subscribers into subscribers array in typeorm config in database-connection.service doesn't allow dependency injection
@@ -22,7 +21,7 @@ export class JobPostSubscriber implements EntitySubscriberInterface<JobPostEntit
   }
 
   afterInsert(event: InsertEvent<JobPostEntity>): Promise<any> | void {
-    this.jobstate.updateData('def');
+    this.notificationService.updateData('def');
     return;
   }
 }

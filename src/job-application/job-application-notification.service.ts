@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Subject } from 'rxjs';
 
 @Injectable()
-export class JobPostStateService {
-
+export class JobApplicationNotificationService {
   private readonly source = new Subject<string>();
 
   get data$() {
