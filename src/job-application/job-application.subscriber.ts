@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Connection, EntitySubscriberInterface, EventSubscriber, InsertEvent } from 'typeorm';
-import { JobPostEntity } from '../job-post/entities/job-post.entity';
+import { ApplicationUpdatedResponseDto } from './dto/application-updated-response.dto';
+import { JobApplicationEntity } from './entities/job-application.entity';
 import { JobApplicationNotificationService } from './job-application-notification.service';
 
 @Injectable()
 @EventSubscriber()
-export class JobApplicationSubscriber implements EntitySubscriberInterface<JobPostEntity> {
+export class JobApplicationSubscriber implements EntitySubscriberInterface<JobApplicationEntity> {
   constructor(
     private readonly connection: Connection,
     private readonly notificationService: JobApplicationNotificationService
@@ -17,11 +18,30 @@ export class JobApplicationSubscriber implements EntitySubscriberInterface<JobPo
   }
 
   listenTo() {
-    return JobPostEntity;
+    return JobApplicationEntity;
   }
 
-  afterInsert(event: InsertEvent<JobPostEntity>): Promise<any> | void {
-    this.notificationService.updateData('def');
-    return;
+  afterInsert(event: InsertEvent<JobApplicationEntity>): void {
+    this.publishUpdatedData(event.entity);
+  }
+
+  afterUpdate(event: InsertEvent<JobApplicationEntity>): void {
+    this.publishUpdatedData(event.entity);
+  }
+
+  private publishUpdatedData(data: JobApplicationEntity): void {
+    const response = this.mapDataToResponse(data);
+    this.notificationService.updateData(response);
+  }
+
+  private mapDataToResponse(data: JobApplicationEntity): ApplicationUpdatedResponseDto {
+    const response: ApplicationUpdatedResponseDto = {
+      id: data.id,
+      statusDisplayPosition: data.statusDisplayPosition,
+      statusId: data.status.id,
+      jobPostId: data.jobPost.id,
+      userId: data.user.id
+    };
+    return response;
   }
 }
