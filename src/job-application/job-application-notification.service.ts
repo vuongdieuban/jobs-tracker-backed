@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Subject } from 'rxjs';
 import { ApplicationUpdatedResponseDto } from './dto/application-updated-response.dto';
+import { JobApplicationEntity } from './entities/job-application.entity';
 
 @Injectable()
 export class JobApplicationNotificationService {
@@ -10,7 +11,13 @@ export class JobApplicationNotificationService {
     return this.source.asObservable();
   }
 
-  updateData(data: ApplicationUpdatedResponseDto) {
+  publish(data: ApplicationUpdatedResponseDto) {
     this.source.next(data);
   }
+
+  applicationReordered(application: JobApplicationEntity) {}
+
+  applicationStatusChanged(application: JobApplicationEntity) {}
+
+  applicationArchived(application: JobApplicationEntity) {}
 }

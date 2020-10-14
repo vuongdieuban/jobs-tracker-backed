@@ -9,11 +9,13 @@ import { ApplicationUpdatedResponseDto } from './dto/application-updated-respons
 import { CreateApplicationRequestDto } from './dto/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/reorder-application-request.dto';
 import { JobApplicationEntity } from './entities/job-application.entity';
+import { JobApplicationNotificationService } from './job-application-notification.service';
 import { ReorderApplicationsService } from './reorder-applications.service';
 
 @Injectable()
 export class JobApplicationService {
   constructor(
+    private readonly notificationService: JobApplicationNotificationService,
     private readonly reorderService: ReorderApplicationsService,
     @InjectRepository(JobApplicationEntity)
     private readonly jobApplicationRepo: Repository<JobApplicationEntity>,

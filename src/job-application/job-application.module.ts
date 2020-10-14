@@ -7,7 +7,6 @@ import { JobApplicationEntity } from './entities/job-application.entity';
 import { JobApplicationNotificationService } from './job-application-notification.service';
 import { JobApplicationController } from './job-application.controller';
 import { JobApplicationService } from './job-application.service';
-import { JobApplicationSubscriber } from './job-application.subscriber';
 import { ReorderApplicationsService } from './reorder-applications.service';
 
 @Module({
@@ -15,12 +14,7 @@ import { ReorderApplicationsService } from './reorder-applications.service';
     TypeOrmModule.forFeature([JobApplicationEntity, JobApplicationStatusEntity, UserEntity, JobPostEntity])
   ],
   controllers: [JobApplicationController],
-  providers: [
-    JobApplicationService,
-    ReorderApplicationsService,
-    JobApplicationNotificationService,
-    JobApplicationSubscriber
-  ],
+  providers: [JobApplicationService, ReorderApplicationsService, JobApplicationNotificationService],
   exports: [JobApplicationNotificationService]
 })
 export class JobApplicationModule {}

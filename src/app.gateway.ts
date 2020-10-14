@@ -1,4 +1,4 @@
-import { BadGatewayException, Logger, UseGuards } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -47,6 +47,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const user = await this.authenticateConnection(client);
       this.addClientToConnectedSockets(user.id, client);
     } catch (err) {
+      // handleConnection doesn't work with WsException, WsException can only be thrown in @SubscribeMessage
       client.emit('exception', {
         status: 'error',
         message: err.message
