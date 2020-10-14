@@ -1,4 +1,4 @@
-import { CanActivate, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { TokenService } from './token.service';
 
@@ -13,21 +13,19 @@ import { TokenService } from './token.service';
 export class WebsocketAuthGuard implements CanActivate {
   constructor(private readonly tokenService: TokenService) {}
 
-  async canActivate(context: any): Promise<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const client = context.switchToWs().getClient();
     const token = client.handshake.query.authorization;
-    try {
-      if (!this.tokenService.isTokenValid(token)) {
-        return false;
-      }
-      const decoded = this.tokenService.getAccessTokenPayload(token);
-
-      context.switchToWs().getData().user = decoded.userId;
-      return true;
-    } catch (err) {
-      console.log('Websocket Guard Error', err);
+    if (!this.tokenService.isTokenValid(token)) {
       return false;
-      //  throw new WsException()
     }
+    const decoded = this.tokenService.getAccessTokenPayload(token);
+
+    const data = context.switchToWs().getData();
+    if (!data) {
+      throw new WsException('Data cannot be undefined, send an empty object instead');
+    }
+    data.userId = decoded.userId;
+    return true;
   }
 }

@@ -56,7 +56,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('msgToServer')
   handleMessage(client: Socket, payload: any): WsResponse<string> {
-    this.logger.log('-----------Receive message from client---------------', payload);
+    console.log('---------Client Payload-----------', payload);
     return { event: 'msgToClient', data: 'Hello from server' };
   }
 
