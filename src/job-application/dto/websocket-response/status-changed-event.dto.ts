@@ -1,10 +1,10 @@
 import { ApplicationEventName } from 'src/job-application/constants/application-event-name.enum';
+import { BaseEventPayload } from './base-event-payload.dto';
 
-export interface StatusChangedEventPayload {
-  applicationId: string;
+export interface StatusChangedEventPayload extends BaseEventPayload {
   previousStatusId: string;
   updatedStatusId: string;
-  updatedPosition: number;
+  position: number;
 }
 
 export interface ApplicationStatusChangedEvent {
