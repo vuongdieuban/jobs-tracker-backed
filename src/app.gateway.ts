@@ -33,7 +33,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (!sockets) {
         return;
       }
-      sockets.forEach((socket) => socket.emit('msgToClient', data));
+      sockets.forEach((socket) => socket.emit(data.event, data));
     });
   }
 
