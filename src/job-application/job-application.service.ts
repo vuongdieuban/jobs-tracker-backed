@@ -50,6 +50,7 @@ export class JobApplicationService {
       application.statusDisplayPosition = status.jobApplications.length;
 
       const createdApplication = await application.save();
+      this.eventsPublisher.applicationCreated(createdApplication);
       return this.parseFullApplicationResponse(createdApplication);
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
@@ -79,7 +80,8 @@ export class JobApplicationService {
       archiveStatus
     });
 
-    return this.saveReorderedApplications(applicationId, updatedApplications);
+    const updatedApplication = await this.saveReorderedApplications(applicationId, updatedApplications);
+    return this.parseApplicationUpdatedResponse(updatedApplication);
   }
 
   public async reorder(
@@ -105,14 +107,15 @@ export class JobApplicationService {
       return this.parseApplicationUpdatedResponse(application);
     }
 
-    return this.moveApplication(application, status, desiredPosition);
+    const updatedApplication = await this.moveApplication(application, status, desiredPosition);
+    return this.parseApplicationUpdatedResponse(updatedApplication);
   }
 
   private async moveApplication(
     application: JobApplicationEntity,
     desiredStatus: JobApplicationStatusEntity,
     desiredPosition: number
-  ): Promise<ApplicationUpdatedResponseDto> {
+  ): Promise<JobApplicationEntity> {
     if (application.status.id !== desiredStatus.id) {
       console.log('item inserted');
       return this.applicationStatusChange(application, desiredStatus, desiredPosition);
@@ -130,7 +133,7 @@ export class JobApplicationService {
   private async applicationMoveUp(
     application: JobApplicationEntity,
     desiredPosition: number
-  ): Promise<ApplicationUpdatedResponseDto> {
+  ): Promise<JobApplicationEntity> {
     const applications = await this.getApplicationsByStatusId(application.status.id);
     const reorderedApplications = this.reorderService.applicationMoveUp({
       desiredPosition,
@@ -143,7 +146,7 @@ export class JobApplicationService {
   private async applicationMoveDown(
     application: JobApplicationEntity,
     desiredPosition: number
-  ): Promise<ApplicationUpdatedResponseDto> {
+  ): Promise<JobApplicationEntity> {
     const applications = await this.getApplicationsByStatusId(application.status.id);
     const reorderedApplications = this.reorderService.applicationMoveDown({
       desiredPosition,
@@ -157,7 +160,7 @@ export class JobApplicationService {
     application: JobApplicationEntity,
     desiredStatus: JobApplicationStatusEntity,
     desiredPosition: number
-  ): Promise<ApplicationUpdatedResponseDto> {
+  ): Promise<JobApplicationEntity> {
     const applications = await this.getAllApplications();
 
     const reorderedApplications = this.reorderService.applicationStatusChange({
@@ -196,10 +199,9 @@ export class JobApplicationService {
   private async saveReorderedApplications(
     desiredApplicationId: string,
     updatedApplications: JobApplicationEntity[]
-  ): Promise<ApplicationUpdatedResponseDto> {
+  ): Promise<JobApplicationEntity> {
     const updatedData = await this.jobApplicationRepo.save(updatedApplications);
-    const application = updatedData.find((a) => a.id === desiredApplicationId);
-    return this.parseApplicationUpdatedResponse(application);
+    return updatedData.find((a) => a.id === desiredApplicationId);
   }
 
   private parseApplicationUpdatedResponse(application: JobApplicationEntity): ApplicationUpdatedResponseDto {
