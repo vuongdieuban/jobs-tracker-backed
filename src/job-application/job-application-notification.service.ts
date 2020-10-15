@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Subject } from 'rxjs';
-import { ApplicationUpdatedResponseDto } from './dto/application-updated-response.dto';
+import { ApplicationUpdatedResponseDto } from './dto/response/application-updated-response.dto';
 import { JobApplicationEntity } from './entities/job-application.entity';
 
 @Injectable()
