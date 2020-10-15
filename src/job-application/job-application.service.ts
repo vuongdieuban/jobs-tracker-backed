@@ -5,17 +5,17 @@ import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { QueryFailedError, Repository } from 'typeorm';
 import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
-import { ApplicationUpdatedResponseDto } from './dto/response/application-updated-response.dto';
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
+import { ApplicationUpdatedResponseDto } from './dto/response/application-updated-response.dto';
 import { JobApplicationEntity } from './entities/job-application.entity';
-import { JobApplicationNotificationService } from './job-application-notification.service';
+import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';
 import { ReorderApplicationsService } from './reorder-applications.service';
 
 @Injectable()
 export class JobApplicationService {
   constructor(
-    private readonly notificationService: JobApplicationNotificationService,
+    private readonly eventsPublisher: JobApplicationEventsPublisher,
     private readonly reorderService: ReorderApplicationsService,
     @InjectRepository(JobApplicationEntity)
     private readonly jobApplicationRepo: Repository<JobApplicationEntity>,

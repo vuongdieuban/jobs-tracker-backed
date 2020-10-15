@@ -4,7 +4,7 @@ import { JobApplicationStatusEntity } from 'src/job-application-status/entities/
 import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { JobApplicationEntity } from './entities/job-application.entity';
-import { JobApplicationNotificationService } from './job-application-notification.service';
+import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';
 import { JobApplicationController } from './job-application.controller';
 import { JobApplicationService } from './job-application.service';
 import { ReorderApplicationsService } from './reorder-applications.service';
@@ -14,7 +14,7 @@ import { ReorderApplicationsService } from './reorder-applications.service';
     TypeOrmModule.forFeature([JobApplicationEntity, JobApplicationStatusEntity, UserEntity, JobPostEntity])
   ],
   controllers: [JobApplicationController],
-  providers: [JobApplicationService, ReorderApplicationsService, JobApplicationNotificationService],
-  exports: [JobApplicationNotificationService]
+  providers: [JobApplicationService, ReorderApplicationsService, JobApplicationEventsPublisher],
+  exports: [JobApplicationEventsPublisher]
 })
 export class JobApplicationModule {}

@@ -10,7 +10,7 @@ import {
 import { Socket } from 'socket.io';
 import { TokenService } from './auth/token.service';
 import { WebsocketAuthGuard } from './auth/websocket-auth.guard';
-import { JobApplicationNotificationService } from './job-application/job-application-notification.service';
+import { JobApplicationEventsPublisher } from './job-application/job-application-events-publisher.service';
 import { UserEntity } from './user/entities/user.entity';
 import { UserService } from './user/user.service';
 
@@ -24,11 +24,11 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly connectedSockets = new Map<string, Socket[]>();
 
   constructor(
-    private readonly applicationNotificationService: JobApplicationNotificationService,
+    private readonly applicationEventsPublisher: JobApplicationEventsPublisher,
     private readonly tokenService: TokenService,
     private readonly userService: UserService
   ) {
-    this.applicationNotificationService.data$.subscribe((data) => {
+    this.applicationEventsPublisher.data$.subscribe((data) => {
       const sockets = this.connectedSockets.get(data.userId);
       if (!sockets) {
         return;
