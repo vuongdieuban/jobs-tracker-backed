@@ -108,7 +108,19 @@ export class JobApplicationService {
     }
 
     const updatedApplication = await this.moveApplication(application, status, desiredPosition);
+    this.publishApplicationMovedEvent(application, updatedApplication);
     return this.parseApplicationUpdatedResponse(updatedApplication);
+  }
+
+  private publishApplicationMovedEvent(
+    originalApplication: JobApplicationEntity,
+    updatedApplication: JobApplicationEntity
+  ): void {
+    if (originalApplication.status.id === updatedApplication.status.id) {
+      this.eventsPublisher.applicationReordered(updatedApplication);
+      return;
+    }
+    this.eventsPublisher.applicationStatusChanged(originalApplication.status.id, updatedApplication);
   }
 
   private async moveApplication(
