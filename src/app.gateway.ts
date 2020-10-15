@@ -29,7 +29,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly userService: UserService
   ) {
     this.applicationEventsPublisher.data$.subscribe((data) => {
-      const sockets = this.connectedSockets.get(data.userId);
+      const sockets = this.connectedSockets.get(data.payload.userId);
       if (!sockets) {
         return;
       }
