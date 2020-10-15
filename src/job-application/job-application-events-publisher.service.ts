@@ -22,7 +22,8 @@ export class JobApplicationEventsPublisher {
         applicationId: application.id,
         userId: application.user.id,
         statusId: application.status.id,
-        position: application.statusDisplayPosition
+        position: application.statusDisplayPosition,
+        jobPost: application.jobPost
       }
     };
     this.publish(data);
@@ -35,6 +36,7 @@ export class JobApplicationEventsPublisher {
         applicationId: application.id,
         userId: application.user.id,
         position: application.statusDisplayPosition,
+        jobPost: application.jobPost,
         updatedStatusId: application.status.id,
         previousStatusId
       }
