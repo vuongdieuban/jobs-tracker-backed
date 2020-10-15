@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
+import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
 import { ApplicationUpdatedResponseDto } from './dto/response/application-updated-response.dto';
-import { CreateApplicationRequestDto } from './dto/websocket-response/create-application-request.dto';
-import { ReorderApplicationRequestDto } from './dto/websocket-response/reorder-application-request.dto';
 import { JobApplicationEntity } from './entities/job-application.entity';
 import { JobApplicationService } from './job-application.service';
 
