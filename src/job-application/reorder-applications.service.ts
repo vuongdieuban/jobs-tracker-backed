@@ -1,5 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
+import { Repository } from 'typeorm';
 import { JobApplicationEntity } from './entities/job-application.entity';
 
 interface BaseApplicationAction {
@@ -21,6 +23,34 @@ interface ApplicationArchive extends BaseApplicationAction {
 
 @Injectable()
 export class ReorderApplicationsService {
+  constructor(
+    @InjectRepository(JobApplicationEntity)
+    private readonly applicationRepo: Repository<JobApplicationEntity>
+  ) {}
+
+  public async moveApplicationUp(desiredApplication: JobApplicationEntity, desiredPosition: number) {
+    const currentPosition = desiredApplication.statusDisplayPosition;
+
+    await this.applicationRepo
+      .createQueryBuilder()
+      .update()
+      .set({ statusDisplayPosition: () => '"statusDisplayPosition" + 1' })
+      .where('"statusDisplayPosition" >= :desiredPosition', { desiredPosition })
+      .andWhere('"statusDisplayPosition" < :currentPosition', { currentPosition })
+      .andWhere('user.id = :userId', { userId: desiredApplication.user.id })
+      .andWhere('status.id = :statusId', { statusId: desiredApplication.status.id })
+      .andWhere('id != :applicationId', { applicationId: desiredApplication.id })
+      .execute();
+
+    const updateFields: Partial<JobApplicationEntity> = {
+      ...desiredApplication,
+      id: desiredApplication.id,
+      statusDisplayPosition: desiredPosition
+    };
+    const updatedApplication = await this.applicationRepo.save(updateFields);
+    return updatedApplication;
+  }
+
   // Return array of all applications that have been updated
   // Desired application move up, other items in list move down
   public applicationMoveUp(data: ApplicationToMove): JobApplicationEntity[] {

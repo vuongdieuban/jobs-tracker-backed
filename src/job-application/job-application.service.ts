@@ -138,7 +138,8 @@ export class JobApplicationService {
       return this.applicationMoveDown(application, desiredPosition);
     } else {
       console.log('item move up');
-      return this.applicationMoveUp(application, desiredPosition);
+      // return this.applicationMoveUp(application, desiredPosition);
+      return this.reorderService.moveApplicationUp(application, desiredPosition);
     }
   }
 

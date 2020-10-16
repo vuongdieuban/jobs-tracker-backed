@@ -12,7 +12,7 @@ export const typeormConfigOptions: TypeOrmModuleOptions = {
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
-  logging: false,
+  logging: true,
   entities: ['dist/**/*.entity.js'],
 
   migrationsTableName: 'migration',
