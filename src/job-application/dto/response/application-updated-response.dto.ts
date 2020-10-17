@@ -10,7 +10,7 @@ export class ApplicationUpdatedResponseDto {
   @ApiProperty()
   @IsNumber()
   @IsDefined()
-  readonly statusDisplayPosition: number;
+  readonly position: number;
 
   @ApiProperty()
   @IsString()

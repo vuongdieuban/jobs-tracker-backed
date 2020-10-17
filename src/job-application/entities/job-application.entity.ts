@@ -9,7 +9,7 @@ import { Column, Entity, ManyToOne, Unique } from 'typeorm';
 @Unique(['user', 'jobPost'])
 export class JobApplicationEntity extends AbstractEntity {
   @Column()
-  statusDisplayPosition: number;
+  position: number;
 
   @ManyToOne(
     (type) => UserEntity,

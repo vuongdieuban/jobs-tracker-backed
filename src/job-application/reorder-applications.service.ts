@@ -29,14 +29,14 @@ export class ReorderApplicationsService {
   ) {}
 
   public async moveApplicationUp(desiredApplication: JobApplicationEntity, desiredPosition: number) {
-    const currentPosition = desiredApplication.statusDisplayPosition;
+    const currentPosition = desiredApplication.position;
 
     await this.applicationRepo
       .createQueryBuilder()
       .update()
-      .set({ statusDisplayPosition: () => '"statusDisplayPosition" + 1' })
-      .where('"statusDisplayPosition" >= :desiredPosition', { desiredPosition })
-      .andWhere('"statusDisplayPosition" < :currentPosition', { currentPosition })
+      .set({ position: () => '"position" + 1' })
+      .where('"position" >= :desiredPosition', { desiredPosition })
+      .andWhere('"position" < :currentPosition', { currentPosition })
       .andWhere('user.id = :userId', { userId: desiredApplication.user.id })
       .andWhere('status.id = :statusId', { statusId: desiredApplication.status.id })
       .andWhere('id != :applicationId', { applicationId: desiredApplication.id })
@@ -45,7 +45,7 @@ export class ReorderApplicationsService {
     const updateFields: Partial<JobApplicationEntity> = {
       ...desiredApplication,
       id: desiredApplication.id,
-      statusDisplayPosition: desiredPosition
+      position: desiredPosition
     };
     const updatedApplication = await this.applicationRepo.save(updateFields);
     return updatedApplication;
@@ -56,18 +56,18 @@ export class ReorderApplicationsService {
   public applicationMoveUp(data: ApplicationToMove): JobApplicationEntity[] {
     const { desiredApplication, desiredPosition, applications } = data;
     this.checkReorderPosibility(desiredPosition, applications.length);
-    const currentPosition = desiredApplication.statusDisplayPosition;
+    const currentPosition = desiredApplication.position;
 
     // Get all the items between current position and desired position
     const applicationsToUpdate = applications.filter(
-      (a) => a.statusDisplayPosition >= desiredPosition && a.statusDisplayPosition < currentPosition
+      (a) => a.position >= desiredPosition && a.position < currentPosition
     );
 
     // Increment position by 1 because all those items are moving down
     const updatedItems = this.itemsMoveDown(applicationsToUpdate);
 
     // update the current application to its new desired position
-    desiredApplication.statusDisplayPosition = desiredPosition;
+    desiredApplication.position = desiredPosition;
 
     updatedItems.push(desiredApplication);
     return updatedItems;
@@ -76,15 +76,15 @@ export class ReorderApplicationsService {
   public applicationMoveDown(data: ApplicationToMove): JobApplicationEntity[] {
     const { desiredApplication, desiredPosition, applications } = data;
     this.checkReorderPosibility(desiredPosition, applications.length);
-    const currentPosition = desiredApplication.statusDisplayPosition;
+    const currentPosition = desiredApplication.position;
 
     const applicationsToUpdate = applications.filter(
-      (a) => a.statusDisplayPosition > currentPosition && a.statusDisplayPosition <= desiredPosition
+      (a) => a.position > currentPosition && a.position <= desiredPosition
     );
 
     const updatedItems = this.itemsMoveUp(applicationsToUpdate);
 
-    desiredApplication.statusDisplayPosition = desiredPosition;
+    desiredApplication.position = desiredPosition;
 
     updatedItems.push(desiredApplication);
     return updatedItems;
@@ -92,10 +92,10 @@ export class ReorderApplicationsService {
 
   public applicationArchive(data: ApplicationArchive): JobApplicationEntity[] {
     const { applications, desiredApplication, archiveStatus } = data;
-    const currentPosition = desiredApplication.statusDisplayPosition;
+    const currentPosition = desiredApplication.position;
 
     const sourceItemsToUpdate = applications.filter(
-      (a) => a.status.id === desiredApplication.status.id && a.statusDisplayPosition > currentPosition
+      (a) => a.status.id === desiredApplication.status.id && a.position > currentPosition
     );
 
     const archivedItems = applications.filter((a) => a.status.id === archiveStatus.id);
@@ -103,7 +103,7 @@ export class ReorderApplicationsService {
     const updatedItems = this.itemsMoveUp(sourceItemsToUpdate);
 
     desiredApplication.status = archiveStatus;
-    desiredApplication.statusDisplayPosition = archivedItems.length;
+    desiredApplication.position = archivedItems.length;
 
     updatedItems.push(desiredApplication);
     return updatedItems;
@@ -113,25 +113,23 @@ export class ReorderApplicationsService {
     const { desiredApplication, desiredPosition, desiredStatus, applications } = data;
     const desiredStatusId = desiredStatus.id;
 
-    const currentPosition = desiredApplication.statusDisplayPosition;
+    const currentPosition = desiredApplication.position;
 
     // items that have to move up
     const sourceItemsToUpdate = applications.filter(
-      (a) => a.status.id === desiredApplication.status.id && a.statusDisplayPosition > currentPosition
+      (a) => a.status.id === desiredApplication.status.id && a.position > currentPosition
     );
 
     const destinationItems = applications.filter((a) => a.status.id === desiredStatusId);
     // items that have to move down
-    const destinationItemsToUpdate = destinationItems.filter(
-      (a) => a.statusDisplayPosition >= desiredPosition
-    );
+    const destinationItemsToUpdate = destinationItems.filter((a) => a.position >= desiredPosition);
 
     this.checkInsertPosibility(desiredPosition, destinationItems.length);
 
     const updatedSource = this.itemsMoveUp(sourceItemsToUpdate);
     const updatedDestination = this.itemsMoveDown(destinationItemsToUpdate);
 
-    desiredApplication.statusDisplayPosition = desiredPosition;
+    desiredApplication.position = desiredPosition;
     desiredApplication.status = desiredStatus;
 
     updatedDestination.push(desiredApplication);
@@ -142,7 +140,7 @@ export class ReorderApplicationsService {
     return items.map((i) => {
       return {
         ...i,
-        statusDisplayPosition: i.statusDisplayPosition - 1
+        position: i.position - 1
       } as JobApplicationEntity;
     });
   }
@@ -151,7 +149,7 @@ export class ReorderApplicationsService {
     return items.map((i) => {
       return {
         ...i,
-        statusDisplayPosition: i.statusDisplayPosition + 1
+        position: i.position + 1
       } as JobApplicationEntity;
     });
   }

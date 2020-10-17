@@ -47,7 +47,7 @@ export class JobApplicationService {
       application.status = status;
       application.user = user;
 
-      application.statusDisplayPosition = status.jobApplications.length;
+      application.position = status.jobApplications.length;
 
       const createdApplication = await application.save();
       this.eventsPublisher.applicationCreated(createdApplication);
@@ -101,7 +101,7 @@ export class JobApplicationService {
 
     desiredPosition = desiredPosition === undefined ? status.jobApplications.length : desiredPosition;
 
-    const { statusDisplayPosition: currentPosition } = application;
+    const { position: currentPosition } = application;
     const { id: currentStatus } = application.status;
     if (currentPosition === desiredPosition && currentStatus === desiredStatusId) {
       return this.parseApplicationUpdatedResponse(application);
@@ -133,7 +133,7 @@ export class JobApplicationService {
       return this.applicationStatusChange(application, desiredStatus, desiredPosition);
     }
 
-    if (desiredPosition > application.statusDisplayPosition) {
+    if (desiredPosition > application.position) {
       console.log('item move down');
       return this.applicationMoveDown(application, desiredPosition);
     } else {
@@ -221,7 +221,7 @@ export class JobApplicationService {
     return {
       id: application.id,
       statusId: application.status.id,
-      statusDisplayPosition: application.statusDisplayPosition,
+      position: application.position,
       jobPostId: application.jobPost.id,
       userId: application.user.id
     };

@@ -22,7 +22,7 @@ export class JobApplicationEventsPublisher {
         applicationId: application.id,
         userId: application.user.id,
         statusId: application.status.id,
-        position: application.statusDisplayPosition,
+        position: application.position,
         jobPost: application.jobPost
       }
     };
@@ -35,7 +35,7 @@ export class JobApplicationEventsPublisher {
       payload: {
         applicationId: application.id,
         userId: application.user.id,
-        position: application.statusDisplayPosition,
+        position: application.position,
         jobPost: application.jobPost,
         updatedStatusId: application.status.id,
         previousStatusId
@@ -50,7 +50,7 @@ export class JobApplicationEventsPublisher {
       payload: {
         applicationId: application.id,
         userId: application.user.id,
-        position: application.statusDisplayPosition,
+        position: application.position,
         statusId: application.status.id,
         jobPost: application.jobPost
       }
