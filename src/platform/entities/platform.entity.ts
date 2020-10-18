@@ -4,10 +4,10 @@ import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity()
 export class PlatformEntity extends AbstractEntity {
-  @Column()
+  @Column({ name: 'name' })
   name: string;
 
-  @Column()
+  @Column({ name: 'base_url' })
   baseUrl: string;
 
   @OneToMany(

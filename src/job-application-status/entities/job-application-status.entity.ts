@@ -4,7 +4,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity()
 export class JobApplicationStatusEntity extends AbstractEntity {
-  @Column()
+  @Column({ name: 'name' })
   name: string;
 
   @OneToMany(

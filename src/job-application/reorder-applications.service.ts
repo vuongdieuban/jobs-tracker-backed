@@ -34,9 +34,9 @@ export class ReorderApplicationsService {
     await this.applicationRepo
       .createQueryBuilder()
       .update()
-      .set({ position: () => '"position" + 1' })
-      .where('"position" >= :desiredPosition', { desiredPosition })
-      .andWhere('"position" < :currentPosition', { currentPosition })
+      .set({ position: () => 'position + 1' })
+      .where('position >= :desiredPosition', { desiredPosition })
+      .andWhere('position < :currentPosition', { currentPosition })
       .andWhere('user.id = :userId', { userId: desiredApplication.user.id })
       .andWhere('status.id = :statusId', { statusId: desiredApplication.status.id })
       .andWhere('id != :applicationId', { applicationId: desiredApplication.id })
