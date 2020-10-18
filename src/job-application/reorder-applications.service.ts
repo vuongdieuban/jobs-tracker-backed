@@ -28,44 +28,54 @@ export class ReorderApplicationsService {
     private readonly applicationRepo: Repository<JobApplicationEntity>
   ) {}
 
-  public async moveApplicationUp(desiredApplication: JobApplicationEntity, desiredPosition: number) {
-    const currentPosition = desiredApplication.position;
-
+  public async moveApplicationUp(
+    application: JobApplicationEntity,
+    desiredPosition: number
+  ): Promise<JobApplicationEntity> {
+    const currentPosition = application.position;
     await this.applicationRepo
       .createQueryBuilder()
       .update()
       .set({ position: () => 'position + 1' })
       .where('position >= :desiredPosition', { desiredPosition })
       .andWhere('position < :currentPosition', { currentPosition })
-      .andWhere('user.id = :userId', { userId: desiredApplication.user.id })
-      .andWhere('status.id = :statusId', { statusId: desiredApplication.status.id })
-      .andWhere('id != :applicationId', { applicationId: desiredApplication.id })
+      .andWhere('user.id = :userId', { userId: application.user.id })
+      .andWhere('status.id = :statusId', { statusId: application.status.id })
+      .andWhere('id != :applicationId', { applicationId: application.id })
       .execute();
 
-    const updateFields: Partial<JobApplicationEntity> = {
-      ...desiredApplication,
-      id: desiredApplication.id,
+    const updateFields = {
+      ...application,
+      id: application.id,
       position: desiredPosition
-    };
-    const updatedApplication = await this.applicationRepo.save(updateFields);
-    return updatedApplication;
+    } as JobApplicationEntity;
+
+    return this.applicationRepo.save(updateFields);
   }
 
-  public applicationMoveDown(data: ApplicationToMove): JobApplicationEntity[] {
-    const { desiredApplication, desiredPosition, applications } = data;
-    this.checkReorderPosibility(desiredPosition, applications.length);
-    const currentPosition = desiredApplication.position;
+  public async moveApplicationDown(
+    application: JobApplicationEntity,
+    desiredPosition: number
+  ): Promise<JobApplicationEntity> {
+    const currentPosition = application.position;
+    await this.applicationRepo
+      .createQueryBuilder()
+      .update()
+      .set({ position: () => 'position - 1' })
+      .where('position > :currentPosition', { currentPosition })
+      .andWhere('position <= :desiredPosition', { desiredPosition })
+      .andWhere('user.id = :userId', { userId: application.user.id })
+      .andWhere('status.id = :statusId', { statusId: application.status.id })
+      .andWhere('id != :applicationId', { applicationId: application.id })
+      .execute();
 
-    const applicationsToUpdate = applications.filter(
-      (a) => a.position > currentPosition && a.position <= desiredPosition
-    );
+    const updateFields = {
+      ...application,
+      id: application.id,
+      position: desiredPosition
+    } as JobApplicationEntity;
 
-    const updatedItems = this.itemsMoveUp(applicationsToUpdate);
-
-    desiredApplication.position = desiredPosition;
-
-    updatedItems.push(desiredApplication);
-    return updatedItems;
+    return this.applicationRepo.save(updateFields);
   }
 
   public applicationArchive(data: ApplicationArchive): JobApplicationEntity[] {
@@ -130,13 +140,6 @@ export class ReorderApplicationsService {
         position: i.position + 1
       } as JobApplicationEntity;
     });
-  }
-
-  private checkReorderPosibility(desiredPosition: number, totalLength: number) {
-    // display order start at 0
-    if (desiredPosition >= totalLength) {
-      throw new BadRequestException('Cannot move to unexisted order.');
-    }
   }
 
   private checkInsertPosibility(desiredPosition: number, totalLength: number) {

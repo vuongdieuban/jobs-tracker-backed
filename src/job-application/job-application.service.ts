@@ -135,24 +135,11 @@ export class JobApplicationService {
 
     if (desiredPosition > application.position) {
       console.log('item move down');
-      return this.applicationMoveDown(application, desiredPosition);
+      return this.reorderService.moveApplicationDown(application, desiredPosition);
     } else {
       console.log('item move up');
       return this.reorderService.moveApplicationUp(application, desiredPosition);
     }
-  }
-
-  private async applicationMoveDown(
-    application: JobApplicationEntity,
-    desiredPosition: number
-  ): Promise<JobApplicationEntity> {
-    const applications = await this.getApplicationsByStatusId(application.status.id);
-    const reorderedApplications = this.reorderService.applicationMoveDown({
-      desiredPosition,
-      applications,
-      desiredApplication: application
-    });
-    return this.saveReorderedApplications(application.id, reorderedApplications);
   }
 
   private async applicationStatusChange(
@@ -170,13 +157,6 @@ export class JobApplicationService {
     });
 
     return this.saveReorderedApplications(application.id, reorderedApplications);
-  }
-
-  private getApplicationsByStatusId(statusId: string): Promise<JobApplicationEntity[]> {
-    return this.jobApplicationRepo.find({
-      relations: ['status', 'jobPost', 'jobPost.platform', 'user'],
-      where: { status: { id: statusId } }
-    });
   }
 
   private async getApplicationById(applicationId: string): Promise<JobApplicationEntity> {
