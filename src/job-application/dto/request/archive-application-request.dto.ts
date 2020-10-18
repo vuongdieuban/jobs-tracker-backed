@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDefined, IsString } from 'class-validator';
+import { IsBoolean, IsDefined } from 'class-validator';
 
 export class ArchiveApplicationRequestDto {
   @ApiProperty()
-  @IsString()
+  @IsBoolean()
   @IsDefined()
   readonly archive: boolean;
 }
