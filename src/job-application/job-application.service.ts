@@ -27,14 +27,13 @@ export class JobApplicationService {
     private readonly userRepo: Repository<UserEntity>
   ) {}
 
-  public async findAll(): Promise<JobApplicationEntity[]> {
-    const applications = await this.getAllApplications();
-    return applications.map((a) => this.parseFullApplicationResponse(a));
+  public async findAllApplicationsOfUser(userId: string): Promise<JobApplicationEntity[]> {
+    return this.getAllApplications();
   }
 
-  public async create(payload: CreateApplicationRequestDto): Promise<JobApplicationEntity> {
+  public async create(userId: string, payload: CreateApplicationRequestDto): Promise<JobApplicationEntity> {
     try {
-      const { jobPostId, statusId, userId } = payload;
+      const { jobPostId, statusId } = payload;
       const jobPostPromise = this.jobPostReo.findOneOrFail(jobPostId, { relations: ['platform'] });
       const userPromise = this.userRepo.findOneOrFail(userId);
       const statusPromise = this.applicationStatusRepo.findOneOrFail(statusId);
@@ -58,7 +57,7 @@ export class JobApplicationService {
 
       const createdApplication = await application.save();
       this.eventsPublisher.applicationCreated(createdApplication);
-      return this.parseFullApplicationResponse(createdApplication);
+      return createdApplication;
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
         throw new NotFoundException(error.message);
@@ -158,11 +157,5 @@ export class JobApplicationService {
       jobPostId: application.jobPost.id,
       userId: application.user.id
     };
-  }
-
-  private parseFullApplicationResponse(application: JobApplicationEntity): JobApplicationEntity {
-    delete application.status?.jobApplications;
-    delete application.user.email;
-    return application;
   }
 }

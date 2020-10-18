@@ -31,12 +31,11 @@ export class JobPostService {
     });
 
     const existedJobPost = await this.jobPostRepository
-      .createQueryBuilder('jobPost')
-      .leftJoinAndSelect('jobPost.platform', 'platform')
-      .where('jobPost.platformJobKey = :platformJobKey', { platformJobKey })
-      .andWhere('platform.id = :platformId', { platformId })
+      .createQueryBuilder()
+      .select()
+      .where('platform_job_key= :platformJobKey', { platformJobKey })
+      .andWhere('platform_id = :platformId', { platformId })
       .getOne();
-
     if (existedJobPost) {
       return existedJobPost;
     }

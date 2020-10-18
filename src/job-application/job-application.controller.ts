@@ -1,5 +1,7 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UserRequest } from 'src/shared/interfaces/user-request.interface';
 import { ArchiveApplicationRequestDto } from './dto/request/archive-application-request.dto';
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
@@ -7,19 +9,23 @@ import { ApplicationUpdatedResponseDto } from './dto/response/application-update
 import { JobApplicationEntity } from './entities/job-application.entity';
 import { JobApplicationService } from './job-application.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('job-application')
 @ApiTags('job-application')
 export class JobApplicationController {
   constructor(private readonly jobApplicationService: JobApplicationService) {}
 
   @Get('/')
-  public async findAll(): Promise<JobApplicationEntity[]> {
-    return this.jobApplicationService.findAll();
+  public async findAll(@Req() req: UserRequest): Promise<JobApplicationEntity[]> {
+    return this.jobApplicationService.findAllApplicationsOfUser(req.user.id);
   }
 
   @Post('/')
-  public async create(@Body() payload: CreateApplicationRequestDto): Promise<JobApplicationEntity> {
-    return this.jobApplicationService.create(payload);
+  public async create(
+    @Req() req: UserRequest,
+    @Body() payload: CreateApplicationRequestDto
+  ): Promise<JobApplicationEntity> {
+    return this.jobApplicationService.create(req.user.id, payload);
   }
 
   @Put('/reorder/:id')

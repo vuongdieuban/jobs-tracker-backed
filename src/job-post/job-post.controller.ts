@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { JobPostDto } from './dto/job-post.dto';
 import { JobPostEntity } from './entities/job-post.entity';
 import { JobPostService } from './job-post.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('job-post')
 @ApiTags('job-post')
 export class JobPostController {

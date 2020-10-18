@@ -10,10 +10,5 @@ export class CreateApplicationRequestDto {
   @ApiProperty()
   @IsString()
   @IsDefined()
-  readonly userId: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsDefined()
   readonly jobPostId: string;
 }
