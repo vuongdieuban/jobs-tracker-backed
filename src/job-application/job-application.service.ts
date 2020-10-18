@@ -37,16 +37,24 @@ export class JobApplicationService {
       const { jobPostId, statusId, userId } = payload;
       const jobPostPromise = this.jobPostReo.findOneOrFail(jobPostId, { relations: ['platform'] });
       const userPromise = this.userRepo.findOneOrFail(userId);
-      const statusPromise = this.applicationStatusRepo.findOneOrFail(statusId, {
-        relations: ['jobApplications']
+      const statusPromise = this.applicationStatusRepo.findOneOrFail(statusId);
+      const numberOfApplicationsInStatusPromise = this.jobApplicationRepo.count({
+        user: { id: userId },
+        status: { id: statusId },
+        archive: false
       });
-      const [jobPost, status, user] = await Promise.all([jobPostPromise, statusPromise, userPromise]);
+      const [jobPost, status, user, numberOfApplicationsInStatus] = await Promise.all([
+        jobPostPromise,
+        statusPromise,
+        userPromise,
+        numberOfApplicationsInStatusPromise
+      ]);
 
       const application = new JobApplicationEntity();
       application.jobPost = jobPost;
       application.status = status;
       application.user = user;
-      application.position = status.jobApplications.length;
+      application.position = numberOfApplicationsInStatus; // last position in this status
 
       const createdApplication = await application.save();
       this.eventsPublisher.applicationCreated(createdApplication);

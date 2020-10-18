@@ -74,6 +74,7 @@ export class ReorderApplicationsService {
     desiredPosition: number
   ): Promise<void> {
     const currentPosition = application.position;
+    // Also posible to use repo.update({where condition}, {set fields})
     this.applicationRepo
       .createQueryBuilder()
       .update()
