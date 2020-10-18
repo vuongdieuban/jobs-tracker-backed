@@ -51,28 +51,6 @@ export class ReorderApplicationsService {
     return updatedApplication;
   }
 
-  // Return array of all applications that have been updated
-  // Desired application move up, other items in list move down
-  public applicationMoveUp(data: ApplicationToMove): JobApplicationEntity[] {
-    const { desiredApplication, desiredPosition, applications } = data;
-    this.checkReorderPosibility(desiredPosition, applications.length);
-    const currentPosition = desiredApplication.position;
-
-    // Get all the items between current position and desired position
-    const applicationsToUpdate = applications.filter(
-      (a) => a.position >= desiredPosition && a.position < currentPosition
-    );
-
-    // Increment position by 1 because all those items are moving down
-    const updatedItems = this.itemsMoveDown(applicationsToUpdate);
-
-    // update the current application to its new desired position
-    desiredApplication.position = desiredPosition;
-
-    updatedItems.push(desiredApplication);
-    return updatedItems;
-  }
-
   public applicationMoveDown(data: ApplicationToMove): JobApplicationEntity[] {
     const { desiredApplication, desiredPosition, applications } = data;
     this.checkReorderPosibility(desiredPosition, applications.length);

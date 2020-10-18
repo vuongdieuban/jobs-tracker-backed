@@ -138,22 +138,8 @@ export class JobApplicationService {
       return this.applicationMoveDown(application, desiredPosition);
     } else {
       console.log('item move up');
-      // return this.applicationMoveUp(application, desiredPosition);
       return this.reorderService.moveApplicationUp(application, desiredPosition);
     }
-  }
-
-  private async applicationMoveUp(
-    application: JobApplicationEntity,
-    desiredPosition: number
-  ): Promise<JobApplicationEntity> {
-    const applications = await this.getApplicationsByStatusId(application.status.id);
-    const reorderedApplications = this.reorderService.applicationMoveUp({
-      desiredPosition,
-      applications,
-      desiredApplication: application
-    });
-    return this.saveReorderedApplications(application.id, reorderedApplications);
   }
 
   private async applicationMoveDown(
