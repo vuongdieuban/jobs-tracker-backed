@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
-import { Repository, UpdateQueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 import { JobApplicationEntity } from './entities/job-application.entity';
 
 interface ApplicationToMove {

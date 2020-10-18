@@ -11,8 +11,8 @@ export class JobApplicationEntity extends AbstractEntity {
   @Column({ name: 'position' })
   position: number;
 
-  @Column({ name: 'archived' })
-  archived: boolean;
+  @Column({ name: 'archive', default: false })
+  archive: boolean;
 
   @ManyToOne(
     (type) => UserEntity,

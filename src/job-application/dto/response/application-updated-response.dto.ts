@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDefined, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsDefined, IsNumber, IsString } from 'class-validator';
 
 export class ApplicationUpdatedResponseDto {
   @ApiProperty()
@@ -11,6 +11,11 @@ export class ApplicationUpdatedResponseDto {
   @IsNumber()
   @IsDefined()
   readonly position: number;
+
+  @ApiProperty()
+  @IsBoolean()
+  @IsDefined()
+  readonly archive: boolean;
 
   @ApiProperty()
   @IsString()

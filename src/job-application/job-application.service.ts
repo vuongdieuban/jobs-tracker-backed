@@ -7,7 +7,6 @@ import { QueryFailedError, Repository } from 'typeorm';
 import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
-import { ApplicationArchivedResponseDto } from './dto/response/application-archived-response.dto';
 import { ApplicationUpdatedResponseDto } from './dto/response/application-updated-response.dto';
 import { JobApplicationEntity } from './entities/job-application.entity';
 import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';
@@ -47,7 +46,6 @@ export class JobApplicationService {
       application.jobPost = jobPost;
       application.status = status;
       application.user = user;
-
       application.position = status.jobApplications.length;
 
       const createdApplication = await application.save();
@@ -64,20 +62,17 @@ export class JobApplicationService {
     }
   }
 
-  public async archive(applicationId: string): Promise<ApplicationArchivedResponseDto> {
-    const updatedData = await this.jobApplicationRepo.save({ id: applicationId, archived: true });
-    return {
-      id: updatedData.id,
-      archived: updatedData.archived
-    };
+  public async archive(applicationId: string): Promise<ApplicationUpdatedResponseDto> {
+    const application = await this.getApplicationById(applicationId);
+    const updatedData = await this.jobApplicationRepo.save({ ...application, archive: true });
+    return this.parseApplicationUpdatedResponse(updatedData);
   }
 
   public async reorder(
     applicationId: string,
     reorderDto: ReorderApplicationRequestDto
   ): Promise<ApplicationUpdatedResponseDto> {
-    let { position: desiredPosition } = reorderDto;
-    const { statusId: desiredStatusId } = reorderDto;
+    const { position: desiredPosition, statusId: desiredStatusId } = reorderDto;
 
     const status = await this.applicationStatusRepo
       .findOneOrFail(desiredStatusId, { relations: ['jobApplications'] })
@@ -86,11 +81,9 @@ export class JobApplicationService {
       });
 
     const application = await this.getApplicationById(applicationId);
-
-    desiredPosition = desiredPosition === undefined ? status.jobApplications.length : desiredPosition;
-
     const { position: currentPosition } = application;
     const { id: currentStatus } = application.status;
+
     if (currentPosition === desiredPosition && currentStatus === desiredStatusId) {
       return this.parseApplicationUpdatedResponse(application);
     }
@@ -146,19 +139,12 @@ export class JobApplicationService {
     });
   }
 
-  private async saveReorderedApplications(
-    desiredApplicationId: string,
-    updatedApplications: JobApplicationEntity[]
-  ): Promise<JobApplicationEntity> {
-    const updatedData = await this.jobApplicationRepo.save(updatedApplications);
-    return updatedData.find((a) => a.id === desiredApplicationId);
-  }
-
   private parseApplicationUpdatedResponse(application: JobApplicationEntity): ApplicationUpdatedResponseDto {
     return {
       id: application.id,
-      statusId: application.status.id,
       position: application.position,
+      archive: application.archive,
+      statusId: application.status.id,
       jobPostId: application.jobPost.id,
       userId: application.user.id
     };
