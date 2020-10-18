@@ -130,33 +130,16 @@ export class JobApplicationService {
   ): Promise<JobApplicationEntity> {
     if (application.status.id !== desiredStatus.id) {
       console.log('item inserted');
-      return this.applicationStatusChange(application, desiredStatus, desiredPosition);
+      return this.reorderService.changeApplicationStatus({ application, desiredPosition, desiredStatus });
     }
 
     if (desiredPosition > application.position) {
       console.log('item move down');
-      return this.reorderService.moveApplicationDown(application, desiredPosition);
+      return this.reorderService.moveApplicationDown({ application, desiredPosition });
     } else {
       console.log('item move up');
-      return this.reorderService.moveApplicationUp(application, desiredPosition);
+      return this.reorderService.moveApplicationUp({ application, desiredPosition });
     }
-  }
-
-  private async applicationStatusChange(
-    application: JobApplicationEntity,
-    desiredStatus: JobApplicationStatusEntity,
-    desiredPosition: number
-  ): Promise<JobApplicationEntity> {
-    const applications = await this.getAllApplications();
-
-    const reorderedApplications = this.reorderService.applicationStatusChange({
-      desiredPosition,
-      desiredStatus,
-      applications,
-      desiredApplication: application
-    });
-
-    return this.saveReorderedApplications(application.id, reorderedApplications);
   }
 
   private async getApplicationById(applicationId: string): Promise<JobApplicationEntity> {
