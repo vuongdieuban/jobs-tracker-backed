@@ -32,50 +32,16 @@ export class ReorderApplicationsService {
     application: JobApplicationEntity,
     desiredPosition: number
   ): Promise<JobApplicationEntity> {
-    const currentPosition = application.position;
-    await this.applicationRepo
-      .createQueryBuilder()
-      .update()
-      .set({ position: () => 'position + 1' })
-      .where('position >= :desiredPosition', { desiredPosition })
-      .andWhere('position < :currentPosition', { currentPosition })
-      .andWhere('user.id = :userId', { userId: application.user.id })
-      .andWhere('status.id = :statusId', { statusId: application.status.id })
-      .andWhere('id != :applicationId', { applicationId: application.id })
-      .execute();
-
-    const updateFields = {
-      ...application,
-      id: application.id,
-      position: desiredPosition
-    } as JobApplicationEntity;
-
-    return this.applicationRepo.save(updateFields);
+    await this.moveAffectedApplicationsDown(application, desiredPosition);
+    return this.updateApplicationToDesiredPosition(application, desiredPosition);
   }
 
   public async moveApplicationDown(
     application: JobApplicationEntity,
     desiredPosition: number
   ): Promise<JobApplicationEntity> {
-    const currentPosition = application.position;
-    await this.applicationRepo
-      .createQueryBuilder()
-      .update()
-      .set({ position: () => 'position - 1' })
-      .where('position > :currentPosition', { currentPosition })
-      .andWhere('position <= :desiredPosition', { desiredPosition })
-      .andWhere('user.id = :userId', { userId: application.user.id })
-      .andWhere('status.id = :statusId', { statusId: application.status.id })
-      .andWhere('id != :applicationId', { applicationId: application.id })
-      .execute();
-
-    const updateFields = {
-      ...application,
-      id: application.id,
-      position: desiredPosition
-    } as JobApplicationEntity;
-
-    return this.applicationRepo.save(updateFields);
+    await this.moveAffectedApplicationUp(application, desiredPosition);
+    return this.updateApplicationToDesiredPosition(application, desiredPosition);
   }
 
   public applicationArchive(data: ApplicationArchive): JobApplicationEntity[] {
@@ -122,6 +88,54 @@ export class ReorderApplicationsService {
 
     updatedDestination.push(desiredApplication);
     return updatedSource.concat(updatedDestination);
+  }
+
+  private async moveAffectedApplicationsDown(
+    application: JobApplicationEntity,
+    desiredPosition: number
+  ): Promise<void> {
+    const currentPosition = application.position;
+    this.applicationRepo
+      .createQueryBuilder()
+      .update()
+      .set({ position: () => 'position + 1' })
+      .where('position >= :desiredPosition', { desiredPosition })
+      .andWhere('position < :currentPosition', { currentPosition })
+      .andWhere('user.id = :userId', { userId: application.user.id })
+      .andWhere('status.id = :statusId', { statusId: application.status.id })
+      .andWhere('id != :applicationId', { applicationId: application.id })
+      .execute();
+    return;
+  }
+
+  private async moveAffectedApplicationUp(
+    application: JobApplicationEntity,
+    desiredPosition: number
+  ): Promise<void> {
+    const currentPosition = application.position;
+    await this.applicationRepo
+      .createQueryBuilder()
+      .update()
+      .set({ position: () => 'position - 1' })
+      .where('position > :currentPosition', { currentPosition })
+      .andWhere('position <= :desiredPosition', { desiredPosition })
+      .andWhere('user.id = :userId', { userId: application.user.id })
+      .andWhere('status.id = :statusId', { statusId: application.status.id })
+      .andWhere('id != :applicationId', { applicationId: application.id })
+      .execute();
+    return;
+  }
+
+  private async updateApplicationToDesiredPosition(
+    application: JobApplicationEntity,
+    desiredPosition: number
+  ): Promise<JobApplicationEntity> {
+    const updateFields = {
+      ...application,
+      id: application.id,
+      position: desiredPosition
+    } as JobApplicationEntity;
+    return this.applicationRepo.save(updateFields);
   }
 
   private itemsMoveUp(items: JobApplicationEntity[]): JobApplicationEntity[] {
