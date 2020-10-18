@@ -20,23 +20,23 @@ export class ReorderApplicationsService {
     private readonly applicationRepo: Repository<JobApplicationEntity>
   ) {}
 
-  public async moveApplicationUp(data: ApplicationToMove): Promise<JobApplicationEntity> {
+  public async moveApplicationUpWithinSameStatus(data: ApplicationToMove): Promise<JobApplicationEntity> {
     const { application, desiredPosition } = data;
     await this.moveAffectedApplicationsDown(application, desiredPosition);
-    return this.updateApplicationToDesiredPosition(application, desiredPosition);
+    return this.applicationRepo.save({ ...application, position: desiredPosition });
   }
 
-  public async moveApplicationDown(data: ApplicationToMove): Promise<JobApplicationEntity> {
+  public async moveApplicationDownWithinSameStatus(data: ApplicationToMove): Promise<JobApplicationEntity> {
     const { application, desiredPosition } = data;
     await this.moveAffectedApplicationsUp(application, desiredPosition);
-    return this.updateApplicationToDesiredPosition(application, desiredPosition);
+    return this.applicationRepo.save({ ...application, position: desiredPosition });
   }
 
   public async changeApplicationStatus(data: ApplicationStatusChange): Promise<JobApplicationEntity> {
     const { application, desiredPosition, desiredStatus } = data;
     await this.moveApplicationsFromSourceStatusUp(application);
     await this.moveApplicationsFromDestinationStatusDown(application, desiredPosition, desiredStatus.id);
-    return this.updateApplicationToDesiredStatusAndPosition(data);
+    return this.applicationRepo.save({ ...application, position: desiredPosition, status: desiredStatus });
   }
 
   private async moveAffectedApplicationsDown(
@@ -103,24 +103,5 @@ export class ReorderApplicationsService {
       .andWhere('status.id = :desiredStatusId', { desiredStatusId })
       .execute();
     return;
-  }
-
-  private async updateApplicationToDesiredStatusAndPosition(
-    data: ApplicationStatusChange
-  ): Promise<JobApplicationEntity> {
-    const { application, desiredPosition, desiredStatus } = data;
-    return this.applicationRepo.save({
-      ...application,
-      position: desiredPosition,
-      status: desiredStatus
-    });
-  }
-
-  private async updateApplicationToDesiredPosition(
-    application: JobApplicationEntity,
-    desiredPosition: number
-  ): Promise<JobApplicationEntity> {
-    const updateFields = { ...application, position: desiredPosition } as JobApplicationEntity;
-    return this.applicationRepo.save(updateFields);
   }
 }

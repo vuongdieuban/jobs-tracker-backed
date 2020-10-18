@@ -116,10 +116,10 @@ export class JobApplicationService {
 
     if (desiredPosition > application.position) {
       console.log('item move down');
-      return this.reorderService.moveApplicationDown({ application, desiredPosition });
+      return this.reorderService.moveApplicationDownWithinSameStatus({ application, desiredPosition });
     } else {
       console.log('item move up');
-      return this.reorderService.moveApplicationUp({ application, desiredPosition });
+      return this.reorderService.moveApplicationUpWithinSameStatus({ application, desiredPosition });
     }
   }
 
