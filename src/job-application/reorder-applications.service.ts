@@ -13,10 +13,6 @@ interface ApplicationStatusChange extends ApplicationToMove {
   desiredStatus: JobApplicationStatusEntity;
 }
 
-interface ApplicationArchive {
-  archiveStatus: JobApplicationStatusEntity;
-}
-
 @Injectable()
 export class ReorderApplicationsService {
   constructor(
@@ -42,25 +38,6 @@ export class ReorderApplicationsService {
     await this.moveApplicationsFromDestinationStatusDown(application, desiredPosition, desiredStatus.id);
     return this.updateApplicationToDesiredStatusAndPosition(data);
   }
-
-  // public applicationArchive(data: ApplicationArchive): JobApplicationEntity[] {
-  //   const { applications, desiredApplication, archiveStatus } = data;
-  //   const currentPosition = desiredApplication.position;
-
-  //   const sourceItemsToUpdate = applications.filter(
-  //     (a) => a.status.id === desiredApplication.status.id && a.position > currentPosition
-  //   );
-
-  //   const archivedItems = applications.filter((a) => a.status.id === archiveStatus.id);
-
-  //   const updatedItems = this.itemsMoveUp(sourceItemsToUpdate);
-
-  //   desiredApplication.status = archiveStatus;
-  //   desiredApplication.position = archivedItems.length;
-
-  //   updatedItems.push(desiredApplication);
-  //   return updatedItems;
-  // }
 
   private async moveAffectedApplicationsDown(
     application: JobApplicationEntity,
@@ -145,14 +122,5 @@ export class ReorderApplicationsService {
   ): Promise<JobApplicationEntity> {
     const updateFields = { ...application, position: desiredPosition } as JobApplicationEntity;
     return this.applicationRepo.save(updateFields);
-  }
-
-  private itemsMoveUp(items: JobApplicationEntity[]): JobApplicationEntity[] {
-    return items.map((i) => {
-      return {
-        ...i,
-        position: i.position - 1
-      } as JobApplicationEntity;
-    });
   }
 }
