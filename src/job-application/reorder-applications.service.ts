@@ -4,11 +4,6 @@ import { JobApplicationStatusEntity } from 'src/job-application-status/entities/
 import { Repository, UpdateQueryBuilder } from 'typeorm';
 import { JobApplicationEntity } from './entities/job-application.entity';
 
-interface BaseApplicationAction {
-  applications: JobApplicationEntity[];
-  desiredApplication: JobApplicationEntity;
-}
-
 interface ApplicationToMove {
   application: JobApplicationEntity;
   desiredPosition: number;
@@ -18,7 +13,7 @@ interface ApplicationStatusChange extends ApplicationToMove {
   desiredStatus: JobApplicationStatusEntity;
 }
 
-interface ApplicationArchive extends BaseApplicationAction {
+interface ApplicationArchive {
   archiveStatus: JobApplicationStatusEntity;
 }
 
@@ -48,24 +43,24 @@ export class ReorderApplicationsService {
     return this.updateApplicationToDesiredStatusAndPosition(data);
   }
 
-  public applicationArchive(data: ApplicationArchive): JobApplicationEntity[] {
-    const { applications, desiredApplication, archiveStatus } = data;
-    const currentPosition = desiredApplication.position;
+  // public applicationArchive(data: ApplicationArchive): JobApplicationEntity[] {
+  //   const { applications, desiredApplication, archiveStatus } = data;
+  //   const currentPosition = desiredApplication.position;
 
-    const sourceItemsToUpdate = applications.filter(
-      (a) => a.status.id === desiredApplication.status.id && a.position > currentPosition
-    );
+  //   const sourceItemsToUpdate = applications.filter(
+  //     (a) => a.status.id === desiredApplication.status.id && a.position > currentPosition
+  //   );
 
-    const archivedItems = applications.filter((a) => a.status.id === archiveStatus.id);
+  //   const archivedItems = applications.filter((a) => a.status.id === archiveStatus.id);
 
-    const updatedItems = this.itemsMoveUp(sourceItemsToUpdate);
+  //   const updatedItems = this.itemsMoveUp(sourceItemsToUpdate);
 
-    desiredApplication.status = archiveStatus;
-    desiredApplication.position = archivedItems.length;
+  //   desiredApplication.status = archiveStatus;
+  //   desiredApplication.position = archivedItems.length;
 
-    updatedItems.push(desiredApplication);
-    return updatedItems;
-  }
+  //   updatedItems.push(desiredApplication);
+  //   return updatedItems;
+  // }
 
   private async moveAffectedApplicationsDown(
     application: JobApplicationEntity,

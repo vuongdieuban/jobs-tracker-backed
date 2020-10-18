@@ -7,6 +7,7 @@ import { QueryFailedError, Repository } from 'typeorm';
 import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
+import { ApplicationArchivedResponseDto } from './dto/response/application-archived-response.dto';
 import { ApplicationUpdatedResponseDto } from './dto/response/application-updated-response.dto';
 import { JobApplicationEntity } from './entities/job-application.entity';
 import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';
@@ -63,25 +64,12 @@ export class JobApplicationService {
     }
   }
 
-  public async archive(applicationId: string): Promise<ApplicationUpdatedResponseDto> {
-    const statusPromise = this.applicationStatusRepo.findOneOrFail({
-      where: { name: 'Archive' }
-    });
-
-    const [applications, desiredApplication, archiveStatus] = await Promise.all([
-      this.getAllApplications(),
-      this.getApplicationById(applicationId),
-      statusPromise
-    ]);
-
-    const updatedApplications = this.reorderService.applicationArchive({
-      desiredApplication,
-      applications,
-      archiveStatus
-    });
-
-    const updatedApplication = await this.saveReorderedApplications(applicationId, updatedApplications);
-    return this.parseApplicationUpdatedResponse(updatedApplication);
+  public async archive(applicationId: string): Promise<ApplicationArchivedResponseDto> {
+    const updatedData = await this.jobApplicationRepo.save({ id: applicationId, archived: true });
+    return {
+      id: updatedData.id,
+      archived: updatedData.archived
+    };
   }
 
   public async reorder(

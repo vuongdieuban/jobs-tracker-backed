@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger';
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
+import { ApplicationArchivedResponseDto } from './dto/response/application-archived-response.dto';
 import { ApplicationUpdatedResponseDto } from './dto/response/application-updated-response.dto';
 import { JobApplicationEntity } from './entities/job-application.entity';
 import { JobApplicationService } from './job-application.service';
@@ -29,14 +30,8 @@ export class JobApplicationController {
     return this.jobApplicationService.reorder(id, payload);
   }
 
-  @Put('/:id')
-  public async update(@Param('id') id: string): Promise<ApplicationUpdatedResponseDto> {
-    // Maybe this endpoint is not needed, maybe can directly update data from reorder.
-    return;
-  }
-
-  @Delete('/:id')
-  public async archive(@Param('id') id: string): Promise<ApplicationUpdatedResponseDto> {
+  @Put('/archive/:id')
+  public async archive(@Param('id') id: string): Promise<ApplicationArchivedResponseDto> {
     return this.jobApplicationService.archive(id);
   }
 }
