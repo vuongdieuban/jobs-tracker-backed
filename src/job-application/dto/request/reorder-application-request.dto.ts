@@ -8,7 +8,7 @@ export class ReorderApplicationRequestDto {
   })
   @IsNumber()
   @IsOptional()
-  readonly position: number;
+  readonly position?: number;
 
   @ApiProperty()
   @IsString()

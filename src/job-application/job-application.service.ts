@@ -28,7 +28,7 @@ export class JobApplicationService {
   ) {}
 
   public async findAllApplicationsOfUser(userId: string): Promise<JobApplicationEntity[]> {
-    return this.getAllApplications();
+    return this.getAllApplicationsOfUser(userId);
   }
 
   public async create(userId: string, payload: CreateApplicationRequestDto): Promise<JobApplicationEntity> {
@@ -37,23 +37,19 @@ export class JobApplicationService {
       const jobPostPromise = this.jobPostReo.findOneOrFail(jobPostId, { relations: ['platform'] });
       const userPromise = this.userRepo.findOneOrFail(userId);
       const statusPromise = this.applicationStatusRepo.findOneOrFail(statusId);
-      const numberOfApplicationsInStatusPromise = this.jobApplicationRepo.count({
-        user: { id: userId },
-        status: { id: statusId },
-        archive: false
-      });
-      const [jobPost, status, user, numberOfApplicationsInStatus] = await Promise.all([
+      const lastPositionPromise = this.getLastPositionFromStatus(statusId, userId);
+      const [jobPost, status, user, lastPosition] = await Promise.all([
         jobPostPromise,
         statusPromise,
         userPromise,
-        numberOfApplicationsInStatusPromise
+        lastPositionPromise
       ]);
 
       const application = new JobApplicationEntity();
       application.jobPost = jobPost;
       application.status = status;
       application.user = user;
-      application.position = numberOfApplicationsInStatus; // last position in this status
+      application.position = lastPosition; // last position in this status
 
       const createdApplication = await application.save();
       this.eventsPublisher.applicationCreated(createdApplication);
@@ -81,20 +77,26 @@ export class JobApplicationService {
     applicationId: string,
     reorderDto: ReorderApplicationRequestDto
   ): Promise<ApplicationUpdatedResponseDto> {
-    const { position: desiredPosition, statusId: desiredStatusId } = reorderDto;
+    const { statusId: desiredStatusId } = reorderDto;
+    let { position: desiredPosition } = reorderDto;
 
-    const status = await this.applicationStatusRepo
-      .findOneOrFail(desiredStatusId, { relations: ['jobApplications'] })
-      .catch((e) => {
-        throw new NotFoundException(`Status with id ${applicationId} not found`);
-      });
+    const statusPromise = this.applicationStatusRepo.findOneOrFail(desiredStatusId).catch((e) => {
+      throw new NotFoundException(`Status with id ${applicationId} not found`);
+    });
 
-    const application = await this.getApplicationById(applicationId);
+    const applicationPromise = this.getApplicationById(applicationId);
+    const [status, application] = await Promise.all([statusPromise, applicationPromise]);
+
     const { position: currentPosition } = application;
     const { id: currentStatus } = application.status;
 
     if (currentPosition === desiredPosition && currentStatus === desiredStatusId) {
       return this.parseApplicationUpdatedResponse(application);
+    }
+
+    if (desiredPosition === undefined) {
+      // make it the last position of this status
+      desiredPosition = await this.getLastPositionFromStatus(status.id, application.user.id);
     }
 
     const updatedApplication = await this.moveApplication(application, status, desiredPosition);
@@ -142,8 +144,9 @@ export class JobApplicationService {
       });
   }
 
-  private async getAllApplications(): Promise<JobApplicationEntity[]> {
+  private async getAllApplicationsOfUser(userId: string): Promise<JobApplicationEntity[]> {
     return this.jobApplicationRepo.find({
+      where: { user: { id: userId } },
       relations: ['status', 'jobPost', 'jobPost.platform', 'user']
     });
   }
@@ -157,5 +160,13 @@ export class JobApplicationService {
       jobPostId: application.jobPost.id,
       userId: application.user.id
     };
+  }
+
+  private async getLastPositionFromStatus(statusId: string, userId: string): Promise<number> {
+    return this.jobApplicationRepo.count({
+      user: { id: userId },
+      status: { id: statusId },
+      archive: false
+    });
   }
 }
