@@ -22,24 +22,29 @@ export class ReorderApplicationsService {
 
   public async moveApplicationUpWithinSameStatus(data: ApplicationToMove): Promise<JobApplicationEntity> {
     const { application, desiredPosition } = data;
-    await this.moveAffectedApplicationsDown(application, desiredPosition);
+    await this.moveApplicationsDownDueToReorder(application, desiredPosition);
     return this.applicationRepo.save({ ...application, position: desiredPosition });
   }
 
   public async moveApplicationDownWithinSameStatus(data: ApplicationToMove): Promise<JobApplicationEntity> {
     const { application, desiredPosition } = data;
-    await this.moveAffectedApplicationsUp(application, desiredPosition);
+    await this.moveApplicationsUpDueToReorder(application, desiredPosition);
     return this.applicationRepo.save({ ...application, position: desiredPosition });
   }
 
   public async changeApplicationStatus(data: ApplicationStatusChange): Promise<JobApplicationEntity> {
     const { application, desiredPosition, desiredStatus } = data;
-    await this.moveApplicationsFromSourceStatusUp(application);
-    await this.moveApplicationsFromDestinationStatusDown(application, desiredPosition, desiredStatus.id);
+    await this.moveApplicationsUpDueToRemoval(application);
+    await this.moveApplicationsDownDueToInsertion(application, desiredPosition, desiredStatus.id);
     return this.applicationRepo.save({ ...application, position: desiredPosition, status: desiredStatus });
   }
 
-  private async moveAffectedApplicationsDown(
+  public async archiveApplication(application: JobApplicationEntity): Promise<JobApplicationEntity> {
+    await this.moveApplicationsUpDueToRemoval(application);
+    return this.applicationRepo.save({ ...application, archive: true });
+  }
+
+  private async moveApplicationsDownDueToReorder(
     application: JobApplicationEntity,
     desiredPosition: number
   ): Promise<void> {
@@ -53,11 +58,12 @@ export class ReorderApplicationsService {
       .andWhere('user.id = :userId', { userId: application.user.id })
       .andWhere('status.id = :statusId', { statusId: application.status.id })
       .andWhere('id != :applicationId', { applicationId: application.id })
+      .andWhere('archive = :archive', { archive: false })
       .execute();
     return;
   }
 
-  private async moveAffectedApplicationsUp(
+  private async moveApplicationsUpDueToReorder(
     application: JobApplicationEntity,
     desiredPosition: number
   ): Promise<void> {
@@ -71,11 +77,12 @@ export class ReorderApplicationsService {
       .andWhere('user.id = :userId', { userId: application.user.id })
       .andWhere('status.id = :statusId', { statusId: application.status.id })
       .andWhere('id != :applicationId', { applicationId: application.id })
+      .andWhere('archive = :archive', { archive: false })
       .execute();
     return;
   }
 
-  private async moveApplicationsFromSourceStatusUp(removedApplication: JobApplicationEntity): Promise<void> {
+  private async moveApplicationsUpDueToRemoval(removedApplication: JobApplicationEntity): Promise<void> {
     const currentPosition = removedApplication.position;
     await this.applicationRepo
       .createQueryBuilder()
@@ -85,11 +92,12 @@ export class ReorderApplicationsService {
       .andWhere('user.id = :userId', { userId: removedApplication.user.id })
       .andWhere('status.id = :statusId', { statusId: removedApplication.status.id })
       .andWhere('id != :applicationId', { applicationId: removedApplication.id })
+      .andWhere('archive = :archive', { archive: false })
       .execute();
     return;
   }
 
-  private async moveApplicationsFromDestinationStatusDown(
+  private async moveApplicationsDownDueToInsertion(
     insertedApplication: JobApplicationEntity,
     desiredPosition: number,
     desiredStatusId: string
@@ -101,6 +109,7 @@ export class ReorderApplicationsService {
       .where('position >= :desiredPosition', { desiredPosition })
       .andWhere('user.id = :userId', { userId: insertedApplication.user.id })
       .andWhere('status.id = :desiredStatusId', { desiredStatusId })
+      .andWhere('archive = :archive', { archive: false })
       .execute();
     return;
   }

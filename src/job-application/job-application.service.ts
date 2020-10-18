@@ -64,7 +64,7 @@ export class JobApplicationService {
 
   public async archive(applicationId: string): Promise<ApplicationUpdatedResponseDto> {
     const application = await this.getApplicationById(applicationId);
-    const updatedData = await this.jobApplicationRepo.save({ ...application, archive: true });
+    const updatedData = await this.reorderService.archiveApplication(application);
     return this.parseApplicationUpdatedResponse(updatedData);
   }
 
