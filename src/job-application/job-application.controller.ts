@@ -35,6 +35,6 @@ export class JobApplicationController {
     @Param('id') id: string,
     @Body() payload: ArchiveApplicationRequestDto
   ): Promise<ApplicationUpdatedResponseDto> {
-    return this.jobApplicationService.archive(id);
+    return this.jobApplicationService.archive(id, payload.archive);
   }
 }

@@ -40,8 +40,33 @@ export class ReorderApplicationsService {
   }
 
   public async archiveApplication(application: JobApplicationEntity): Promise<JobApplicationEntity> {
+    // check for already achived
+    if (application.archive) {
+      return application;
+    }
     await this.moveApplicationsUpDueToRemoval(application);
     return this.applicationRepo.save({ ...application, archive: true });
+  }
+
+  public async unarchiveApplication(application: JobApplicationEntity): Promise<JobApplicationEntity> {
+    // check for already unarchived
+    if (!application.archive) {
+      return application;
+    }
+    const numberOfUnArchiveApplications = await this.applicationRepo
+      .createQueryBuilder()
+      .select()
+      .where('status_id = :statusId', { statusId: application.status.id })
+      .andWhere('user_id = :userId', { userId: application.user.id })
+      .andWhere('archive = :archive', { archive: false })
+      .andWhere('id != :applicationId', { applicationId: application.id })
+      .getCount();
+
+    return this.applicationRepo.save({
+      ...application,
+      archive: false,
+      position: numberOfUnArchiveApplications // put it to the last position of this status
+    });
   }
 
   private async moveApplicationsDownDueToReorder(
@@ -55,10 +80,10 @@ export class ReorderApplicationsService {
       .set({ position: () => 'position + 1' })
       .where('position >= :desiredPosition', { desiredPosition })
       .andWhere('position < :currentPosition', { currentPosition })
-      .andWhere('user.id = :userId', { userId: application.user.id })
-      .andWhere('status.id = :statusId', { statusId: application.status.id })
-      .andWhere('id != :applicationId', { applicationId: application.id })
+      .andWhere('user_id = :userId', { userId: application.user.id })
+      .andWhere('status_id = :statusId', { statusId: application.status.id })
       .andWhere('archive = :archive', { archive: false })
+      .andWhere('id != :applicationId', { applicationId: application.id })
       .execute();
     return;
   }
@@ -74,10 +99,10 @@ export class ReorderApplicationsService {
       .set({ position: () => 'position - 1' })
       .where('position > :currentPosition', { currentPosition })
       .andWhere('position <= :desiredPosition', { desiredPosition })
-      .andWhere('user.id = :userId', { userId: application.user.id })
-      .andWhere('status.id = :statusId', { statusId: application.status.id })
-      .andWhere('id != :applicationId', { applicationId: application.id })
+      .andWhere('user_id = :userId', { userId: application.user.id })
+      .andWhere('status_id = :statusId', { statusId: application.status.id })
       .andWhere('archive = :archive', { archive: false })
+      .andWhere('id != :applicationId', { applicationId: application.id })
       .execute();
     return;
   }
@@ -89,10 +114,10 @@ export class ReorderApplicationsService {
       .update()
       .set({ position: () => 'position - 1' })
       .where('position > :currentPosition', { currentPosition })
-      .andWhere('user.id = :userId', { userId: removedApplication.user.id })
-      .andWhere('status.id = :statusId', { statusId: removedApplication.status.id })
-      .andWhere('id != :applicationId', { applicationId: removedApplication.id })
+      .andWhere('user_id = :userId', { userId: removedApplication.user.id })
+      .andWhere('status_id = :statusId', { statusId: removedApplication.status.id })
       .andWhere('archive = :archive', { archive: false })
+      .andWhere('id != :applicationId', { applicationId: removedApplication.id })
       .execute();
     return;
   }
@@ -107,9 +132,10 @@ export class ReorderApplicationsService {
       .update()
       .set({ position: () => 'position + 1' })
       .where('position >= :desiredPosition', { desiredPosition })
-      .andWhere('user.id = :userId', { userId: insertedApplication.user.id })
-      .andWhere('status.id = :desiredStatusId', { desiredStatusId })
+      .andWhere('user_id = :userId', { userId: insertedApplication.user.id })
+      .andWhere('status_id = :desiredStatusId', { desiredStatusId })
       .andWhere('archive = :archive', { archive: false })
+      .andWhere('id != :applicationId', { applicationId: insertedApplication.id })
       .execute();
     return;
   }

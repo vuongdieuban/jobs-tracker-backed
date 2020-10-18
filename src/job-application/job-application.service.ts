@@ -62,9 +62,11 @@ export class JobApplicationService {
     }
   }
 
-  public async archive(applicationId: string): Promise<ApplicationUpdatedResponseDto> {
+  public async archive(applicationId: string, archiveValue: boolean): Promise<ApplicationUpdatedResponseDto> {
     const application = await this.getApplicationById(applicationId);
-    const updatedData = await this.reorderService.archiveApplication(application);
+    const updatedData = archiveValue
+      ? await this.reorderService.archiveApplication(application)
+      : await this.reorderService.unarchiveApplication(application);
     return this.parseApplicationUpdatedResponse(updatedData);
   }
 
