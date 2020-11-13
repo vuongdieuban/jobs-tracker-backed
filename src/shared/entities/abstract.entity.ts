@@ -11,7 +11,7 @@ export abstract class AbstractEntity extends BaseEntity {
   @CreateDateColumn({
     name: 'created_ts',
     type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP'
+    default: () => 'CURRENT_TIMESTAMP',
   })
   createdTs: Date;
 
@@ -19,7 +19,7 @@ export abstract class AbstractEntity extends BaseEntity {
   @UpdateDateColumn({
     name: 'updated_ts',
     type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP'
+    default: () => 'CURRENT_TIMESTAMP',
   })
   updatedTs: Date;
 }

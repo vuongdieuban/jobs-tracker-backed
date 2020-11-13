@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JobApplicationStatusEntity } from './entities/job-application-status.entity';
+import { JobApplicationStatusEntity } from '../shared/entities/job-application-status.entity';
 import { JobApplicationStatusController } from './job-application-status.controller';
 import { JobApplicationStatusService } from './job-application-status.service';
 
@@ -8,6 +8,6 @@ import { JobApplicationStatusService } from './job-application-status.service';
   imports: [TypeOrmModule.forFeature([JobApplicationStatusEntity])],
   controllers: [JobApplicationStatusController],
   providers: [JobApplicationStatusService],
-  exports: []
+  exports: [],
 })
 export class JobApplicationStatusModule {}

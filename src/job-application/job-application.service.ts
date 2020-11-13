@@ -1,14 +1,14 @@
 import { BadGatewayException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
-import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
+import { JobApplicationStatusEntity } from 'src/shared/entities/job-application-status.entity';
+import { JobPostEntity } from 'src/shared/entities/job-post.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { QueryFailedError, Repository } from 'typeorm';
 import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
 import { ApplicationUpdatedResponseDto } from './dto/response/application-updated-response.dto';
-import { JobApplicationEntity } from './entities/job-application.entity';
+import { JobApplicationEntity } from '../shared/entities/job-application.entity';
 import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';
 import { ReorderApplicationsService } from './reorder-applications.service';
 
@@ -24,7 +24,7 @@ export class JobApplicationService {
     @InjectRepository(JobPostEntity)
     private readonly jobPostReo: Repository<JobPostEntity>,
     @InjectRepository(UserEntity)
-    private readonly userRepo: Repository<UserEntity>
+    private readonly userRepo: Repository<UserEntity>,
   ) {}
 
   public async findAllApplicationsOfUser(userId: string): Promise<JobApplicationEntity[]> {
@@ -42,7 +42,7 @@ export class JobApplicationService {
         jobPostPromise,
         statusPromise,
         userPromise,
-        lastPositionPromise
+        lastPositionPromise,
       ]);
 
       const application = new JobApplicationEntity();
@@ -65,7 +65,10 @@ export class JobApplicationService {
     }
   }
 
-  public async archive(applicationId: string, archiveValue: boolean): Promise<ApplicationUpdatedResponseDto> {
+  public async archive(
+    applicationId: string,
+    archiveValue: boolean,
+  ): Promise<ApplicationUpdatedResponseDto> {
     const application = await this.getApplicationById(applicationId);
     const updatedData = archiveValue
       ? await this.reorderService.archiveApplication(application)
@@ -75,12 +78,12 @@ export class JobApplicationService {
 
   public async reorder(
     applicationId: string,
-    reorderDto: ReorderApplicationRequestDto
+    reorderDto: ReorderApplicationRequestDto,
   ): Promise<ApplicationUpdatedResponseDto> {
     const { statusId: desiredStatusId } = reorderDto;
     let { position: desiredPosition } = reorderDto;
 
-    const statusPromise = this.applicationStatusRepo.findOneOrFail(desiredStatusId).catch((e) => {
+    const statusPromise = this.applicationStatusRepo.findOneOrFail(desiredStatusId).catch(e => {
       throw new NotFoundException(`Status with id ${applicationId} not found`);
     });
 
@@ -106,7 +109,7 @@ export class JobApplicationService {
 
   private publishApplicationMovedEvent(
     originalStatusId: string,
-    updatedApplication: JobApplicationEntity
+    updatedApplication: JobApplicationEntity,
   ): void {
     if (originalStatusId === updatedApplication.status.id) {
       this.eventsPublisher.applicationReordered(updatedApplication);
@@ -118,7 +121,7 @@ export class JobApplicationService {
   private async moveApplication(
     application: JobApplicationEntity,
     desiredStatus: JobApplicationStatusEntity,
-    desiredPosition: number
+    desiredPosition: number,
   ): Promise<JobApplicationEntity> {
     if (application.status.id !== desiredStatus.id) {
       console.log('item inserted');
@@ -137,9 +140,9 @@ export class JobApplicationService {
   private async getApplicationById(applicationId: string): Promise<JobApplicationEntity> {
     return this.jobApplicationRepo
       .findOneOrFail(applicationId, {
-        relations: ['status', 'jobPost', 'jobPost.platform', 'user']
+        relations: ['status', 'jobPost', 'jobPost.platform', 'user'],
       })
-      .catch((e) => {
+      .catch(e => {
         throw new NotFoundException(`Application with id ${applicationId} not found`);
       });
   }
@@ -147,7 +150,7 @@ export class JobApplicationService {
   private async getAllApplicationsOfUser(userId: string): Promise<JobApplicationEntity[]> {
     return this.jobApplicationRepo.find({
       where: { user: { id: userId } },
-      relations: ['status', 'jobPost', 'jobPost.platform', 'user']
+      relations: ['status', 'jobPost', 'jobPost.platform', 'user'],
     });
   }
 
@@ -158,7 +161,7 @@ export class JobApplicationService {
       archive: application.archive,
       statusId: application.status.id,
       jobPostId: application.jobPost.id,
-      userId: application.user.id
+      userId: application.user.id,
     };
   }
 
@@ -166,7 +169,7 @@ export class JobApplicationService {
     return this.jobApplicationRepo.count({
       user: { id: userId },
       status: { id: statusId },
-      archive: false
+      archive: false,
     });
   }
 }

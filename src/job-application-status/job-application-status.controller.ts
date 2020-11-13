@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { JobApplicationStatusEntity } from './entities/job-application-status.entity';
+import { JobApplicationStatusEntity } from '../shared/entities/job-application-status.entity';
 import { JobApplicationStatusService } from './job-application-status.service';
 
 @Controller('job-application-status')

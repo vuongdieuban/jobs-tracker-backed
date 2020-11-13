@@ -2,11 +2,11 @@ import { Body, Controller, Get, Param, Post, Put, Req, UseGuards } from '@nestjs
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserRequest } from 'src/shared/interfaces/user-request.interface';
+import { JobApplicationEntity } from '../shared/entities/job-application.entity';
 import { ArchiveApplicationRequestDto } from './dto/request/archive-application-request.dto';
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
 import { ApplicationUpdatedResponseDto } from './dto/response/application-updated-response.dto';
-import { JobApplicationEntity } from './entities/job-application.entity';
 import { JobApplicationService } from './job-application.service';
 
 @UseGuards(JwtAuthGuard)
@@ -23,7 +23,7 @@ export class JobApplicationController {
   @Post('/')
   public async create(
     @Req() req: UserRequest,
-    @Body() payload: CreateApplicationRequestDto
+    @Body() payload: CreateApplicationRequestDto,
   ): Promise<JobApplicationEntity> {
     return this.jobApplicationService.create(req.user.id, payload);
   }
@@ -31,7 +31,7 @@ export class JobApplicationController {
   @Put('/reorder/:id')
   public async reorder(
     @Param('id') id: string,
-    @Body() payload: ReorderApplicationRequestDto
+    @Body() payload: ReorderApplicationRequestDto,
   ): Promise<ApplicationUpdatedResponseDto> {
     return this.jobApplicationService.reorder(id, payload);
   }
@@ -39,7 +39,7 @@ export class JobApplicationController {
   @Put('/archive/:id')
   public async archive(
     @Param('id') id: string,
-    @Body() payload: ArchiveApplicationRequestDto
+    @Body() payload: ArchiveApplicationRequestDto,
   ): Promise<ApplicationUpdatedResponseDto> {
     return this.jobApplicationService.archive(id, payload.archive);
   }

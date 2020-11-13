@@ -5,8 +5,8 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 @Entity()
 export class RefreshTokenEntity extends AbstractEntity {
   @ManyToOne(
-    (type) => UserEntity,
-    (user) => user.refreshTokens
+    type => UserEntity,
+    user => user.refreshTokens,
   )
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;

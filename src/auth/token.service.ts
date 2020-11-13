@@ -6,7 +6,7 @@ import * as moment from 'moment';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { RefreshTokenEntity } from './entities/refresh-token.entity';
+import { RefreshTokenEntity } from '../shared/entities/refresh-token.entity';
 import { AccessTokenPayload } from './interfaces/access-token-payload';
 import { CredentialsTokens } from './interfaces/credentials-token';
 import { RefreshTokenPayload } from './interfaces/refresh-token-payload';
@@ -22,13 +22,13 @@ export class TokenService {
 
   constructor(
     @InjectRepository(RefreshTokenEntity)
-    private readonly refreshTokenRepo: Repository<RefreshTokenEntity>
+    private readonly refreshTokenRepo: Repository<RefreshTokenEntity>,
   ) {}
 
   public isTokenValid(token: string, ignoreExpiration: boolean = false): boolean {
     try {
       jwt.verify(token, this.JWT_SECRET, {
-        ignoreExpiration
+        ignoreExpiration,
       });
       return true;
     } catch (error) {
@@ -93,13 +93,13 @@ export class TokenService {
 
     const payload: RefreshTokenPayload = {
       refreshTokenId: refreshToken.id,
-      userId: user.id
+      userId: user.id,
     };
 
     const signedRefreshToken = jwt.sign(payload, this.JWT_SECRET, {
       expiresIn: '7d',
       jwtid: refreshToken.id,
-      subject: user.id
+      subject: user.id,
     });
 
     return { refreshTokenId: refreshToken.id, signedRefreshToken };
@@ -111,14 +111,14 @@ export class TokenService {
       accessTokenId,
       refreshTokenId,
       userId: user.id,
-      email: user.email
+      email: user.email,
     };
 
     return jwt.sign(payload, this.JWT_SECRET, {
       expiresIn: '1h',
       jwtid: accessTokenId,
       // the subject should be the users id (primary key)
-      subject: user.id
+      subject: user.id,
     });
   }
 }

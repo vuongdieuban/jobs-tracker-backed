@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
+import { JobApplicationStatusEntity } from 'src/shared/entities/job-application-status.entity';
 import { Repository } from 'typeorm';
-import { JobApplicationEntity } from './entities/job-application.entity';
+import { JobApplicationEntity } from '../shared/entities/job-application.entity';
 
 interface ApplicationToMove {
   application: JobApplicationEntity;
@@ -17,7 +17,7 @@ interface ApplicationStatusChange extends ApplicationToMove {
 export class ReorderApplicationsService {
   constructor(
     @InjectRepository(JobApplicationEntity)
-    private readonly applicationRepo: Repository<JobApplicationEntity>
+    private readonly applicationRepo: Repository<JobApplicationEntity>,
   ) {}
 
   public async moveApplicationUpWithinSameStatus(data: ApplicationToMove): Promise<JobApplicationEntity> {
@@ -65,13 +65,13 @@ export class ReorderApplicationsService {
     return this.applicationRepo.save({
       ...application,
       archive: false,
-      position: numberOfUnArchiveApplications // put it to the last position of this status
+      position: numberOfUnArchiveApplications, // put it to the last position of this status
     });
   }
 
   private async moveApplicationsDownDueToReorder(
     application: JobApplicationEntity,
-    desiredPosition: number
+    desiredPosition: number,
   ): Promise<void> {
     const currentPosition = application.position;
     // Also posible to use repo.update({where condition}, {set fields})
@@ -91,7 +91,7 @@ export class ReorderApplicationsService {
 
   private async moveApplicationsUpDueToReorder(
     application: JobApplicationEntity,
-    desiredPosition: number
+    desiredPosition: number,
   ): Promise<void> {
     const currentPosition = application.position;
     await this.applicationRepo
@@ -126,7 +126,7 @@ export class ReorderApplicationsService {
   private async moveApplicationsDownDueToInsertion(
     insertedApplication: JobApplicationEntity,
     desiredPosition: number,
-    desiredStatusId: string
+    desiredStatusId: string,
   ): Promise<void> {
     await this.applicationRepo
       .createQueryBuilder()

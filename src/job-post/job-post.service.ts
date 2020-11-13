@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PlatformEntity } from 'src/platform/entities/platform.entity';
+import { PlatformEntity } from 'src/shared/entities/platform.entity';
 import { Repository } from 'typeorm';
+import { JobPostEntity } from '../shared/entities/job-post.entity';
 import { JobPostDto } from './dto/job-post.dto';
-import { JobPostEntity } from './entities/job-post.entity';
 
 @Injectable()
 export class JobPostService {
@@ -11,7 +11,7 @@ export class JobPostService {
     @InjectRepository(JobPostEntity)
     private readonly jobPostRepository: Repository<JobPostEntity>,
     @InjectRepository(PlatformEntity)
-    private readonly platformRepo: Repository<PlatformEntity>
+    private readonly platformRepo: Repository<PlatformEntity>,
   ) {}
 
   async findAll(): Promise<JobPostEntity[]> {
@@ -19,14 +19,14 @@ export class JobPostService {
   }
 
   async findOne(id: string): Promise<JobPostEntity> {
-    return this.jobPostRepository.findOneOrFail(id, { relations: ['platform'] }).catch((e) => {
+    return this.jobPostRepository.findOneOrFail(id, { relations: ['platform'] }).catch(e => {
       throw new NotFoundException(`Cannot find job post with id ${id}`);
     });
   }
 
   async getOrCreate(jobPost: JobPostDto): Promise<JobPostEntity> {
     const { platformId, platformJobKey } = jobPost;
-    const platform = await this.platformRepo.findOneOrFail(platformId).catch((e) => {
+    const platform = await this.platformRepo.findOneOrFail(platformId).catch(e => {
       throw new NotFoundException(`Cannot find platform with id ${platformId}`);
     });
 

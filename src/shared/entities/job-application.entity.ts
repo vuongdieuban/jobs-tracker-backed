@@ -1,6 +1,6 @@
-import { JobApplicationStatusEntity } from 'src/job-application-status/entities/job-application-status.entity';
-import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
 import { AbstractEntity } from 'src/shared/entities/abstract.entity';
+import { JobApplicationStatusEntity } from 'src/shared/entities/job-application-status.entity';
+import { JobPostEntity } from 'src/shared/entities/job-post.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 
@@ -15,22 +15,22 @@ export class JobApplicationEntity extends AbstractEntity {
   archive: boolean;
 
   @ManyToOne(
-    (type) => UserEntity,
-    (user) => user.jobApplications
+    type => UserEntity,
+    user => user.jobApplications,
   )
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 
   @ManyToOne(
-    (type) => JobApplicationStatusEntity,
-    (status) => status.jobApplications
+    type => JobApplicationStatusEntity,
+    status => status.jobApplications,
   )
   @JoinColumn({ name: 'status_id' })
   status: JobApplicationStatusEntity;
 
   @ManyToOne(
-    (type) => JobPostEntity,
-    (post) => post.jobApplications
+    type => JobPostEntity,
+    post => post.jobApplications,
   )
   @JoinColumn({ name: 'job_post_id' })
   jobPost: JobPostEntity;

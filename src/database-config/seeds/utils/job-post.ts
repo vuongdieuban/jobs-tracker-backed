@@ -1,4 +1,4 @@
-import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
+import { JobPostEntity } from 'src/shared/entities/job-post.entity';
 import { EntityManager } from 'typeorm';
 
 export async function jobPostsSeed(manager: EntityManager): Promise<JobPostEntity[]> {
@@ -9,38 +9,38 @@ export async function jobPostsSeed(manager: EntityManager): Promise<JobPostEntit
       url: 'a.com',
       companyName: 'ComA',
       location: 'BC',
-      platformJobKey: 'abc'
+      platformJobKey: 'abc',
     },
     {
       title: 'Dev2',
       url: 'a.com',
       companyName: 'ComA',
       location: 'BC',
-      platformJobKey: 'def'
+      platformJobKey: 'def',
     },
     {
       title: 'Dev3',
       url: 'a.com',
       companyName: 'ComA',
       location: 'BC',
-      platformJobKey: 'ijk'
+      platformJobKey: 'ijk',
     },
     {
       title: 'Dev4',
       url: 'a.com',
       companyName: 'ComA',
       location: 'BC',
-      platformJobKey: 'ytr'
+      platformJobKey: 'ytr',
     },
     {
       title: 'Dev5',
       url: 'a.com',
       companyName: 'ComA',
       location: 'BC',
-      platformJobKey: 'xyz'
-    }
+      platformJobKey: 'xyz',
+    },
   ];
 
-  const data = seeds.map((seed) => repo.create(seed));
+  const data = seeds.map(seed => repo.create(seed));
   return repo.save(data);
 }

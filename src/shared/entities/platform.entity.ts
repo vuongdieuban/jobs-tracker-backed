@@ -1,5 +1,5 @@
-import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
 import { AbstractEntity } from 'src/shared/entities/abstract.entity';
+import { JobPostEntity } from 'src/shared/entities/job-post.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity()
@@ -11,8 +11,8 @@ export class PlatformEntity extends AbstractEntity {
   baseUrl: string;
 
   @OneToMany(
-    (type) => JobPostEntity,
-    (jobPost) => jobPost.platform
+    type => JobPostEntity,
+    jobPost => jobPost.platform,
   )
   jobPosts: JobPostEntity[];
 }

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Subject } from 'rxjs';
+import { JobApplicationEntity } from '../shared/entities/job-application.entity';
 import { ApplicationEventName } from './constants/application-event-name.enum';
 import { ApplicationEvent } from './dto/websocket-response/application-event.type';
 import { ApplicationCreatedEvent } from './dto/websocket-response/created-event.dto';
 import { ApplicationReorderedEvent } from './dto/websocket-response/reordered-event.dto';
 import { ApplicationStatusChangedEvent } from './dto/websocket-response/status-changed-event.dto';
-import { JobApplicationEntity } from './entities/job-application.entity';
 
 @Injectable()
 export class JobApplicationEventsPublisher {
@@ -23,8 +23,8 @@ export class JobApplicationEventsPublisher {
         userId: application.user.id,
         statusId: application.status.id,
         position: application.position,
-        jobPost: application.jobPost
-      }
+        jobPost: application.jobPost,
+      },
     };
     this.publish(data);
   }
@@ -38,8 +38,8 @@ export class JobApplicationEventsPublisher {
         position: application.position,
         jobPost: application.jobPost,
         updatedStatusId: application.status.id,
-        previousStatusId
-      }
+        previousStatusId,
+      },
     };
     this.publish(data);
   }
@@ -52,8 +52,8 @@ export class JobApplicationEventsPublisher {
         userId: application.user.id,
         position: application.position,
         statusId: application.status.id,
-        jobPost: application.jobPost
-      }
+        jobPost: application.jobPost,
+      },
     };
     this.publish(data);
   }

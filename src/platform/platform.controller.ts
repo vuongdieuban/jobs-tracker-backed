@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { PlatformEntity } from './entities/platform.entity';
+import { PlatformEntity } from '../shared/entities/platform.entity';
 import { PlatformService } from './platform.service';
 
 @Controller('platform')
