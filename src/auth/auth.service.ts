@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import * as moment from 'moment';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -13,7 +13,7 @@ export class AuthService {
   constructor(private readonly userService: UserService, private readonly tokenService: TokenService) {
     this.oauth2Client = new OAuth2Client({
       clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     });
   }
 
@@ -75,7 +75,7 @@ export class AuthService {
 
     const updatedCredentials: CredentialsTokens = {
       accessToken: signedAccessToken,
-      refreshToken: signedRefreshToken
+      refreshToken: signedRefreshToken,
     };
     return [user, updatedCredentials];
   }
@@ -83,11 +83,15 @@ export class AuthService {
   private async googleOAuth(accessToken: string): Promise<string> {
     this.oauth2Client.setCredentials({ access_token: accessToken });
 
-    const googleTokenData = await this.oauth2Client.getTokenInfo(accessToken).catch((e) => {
+    const googleTokenData = await this.oauth2Client.getTokenInfo(accessToken).catch(e => {
       throw new UnauthorizedException('Invalid Google Oauth Access Token');
     });
 
     const { email, expiry_date } = googleTokenData;
+    if (!email) {
+      throw new UnauthorizedException('Invalid token scope. Redefine Oauth scope to allow for email');
+    }
+
     const expiryDate = Math.round(expiry_date / 1000); // convert from milliseconds to seconds
     const currentTime = moment().unix(); // in seconds
 

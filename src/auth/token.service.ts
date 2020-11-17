@@ -18,12 +18,17 @@ interface GeneratedRefreshToken {
 
 @Injectable()
 export class TokenService {
-  private readonly JWT_SECRET = process.env.JWT_SECRET;
+  private readonly JWT_SECRET: string;
 
   constructor(
     @InjectRepository(RefreshTokenEntity)
     private readonly refreshTokenRepo: Repository<RefreshTokenEntity>,
-  ) {}
+  ) {
+    if (!process.env.JWT_SECRET) {
+      throw new Error('Fatal Error. Env JWT_SECRET not defined');
+    }
+    this.JWT_SECRET = process.env.JWT_SECRET;
+  }
 
   public isTokenValid(token: string, ignoreExpiration: boolean = false): boolean {
     try {

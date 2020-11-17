@@ -5,7 +5,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WsException,
-  WsResponse
+  WsResponse,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { TokenService } from './auth/token.service';
@@ -26,18 +26,19 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly applicationEventsPublisher: JobApplicationEventsPublisher,
     private readonly tokenService: TokenService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
   ) {
-    this.applicationEventsPublisher.data$.subscribe((data) => {
+    this.applicationEventsPublisher.data$.subscribe(data => {
       const sockets = this.connectedSockets.get(data.payload.userId);
       if (!sockets) {
         return;
       }
-      sockets.forEach((socket) => socket.emit(data.event, data));
+      sockets.forEach(socket => socket.emit(data.event, data));
     });
   }
 
   handleDisconnect(client: Socket) {
+    // TODO: remove disconnected socket from connectedSockets with this client id
     this.logger.log('-------Client Disconnected------');
   }
 
@@ -50,7 +51,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // handleConnection doesn't work with WsException, WsException can only be thrown in @SubscribeMessage
       client.emit('exception', {
         status: 'error',
-        message: err.message
+        message: err.message,
       });
     }
   }

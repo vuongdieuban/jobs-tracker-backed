@@ -7,11 +7,11 @@ import { UserEntity } from './entities/user.entity';
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
-    private readonly userRepo: Repository<UserEntity>
+    private readonly userRepo: Repository<UserEntity>,
   ) {}
 
   public async findUserById(id: string): Promise<UserEntity> {
-    return this.userRepo.findOneOrFail(id).catch((e) => {
+    return this.userRepo.findOneOrFail(id).catch(e => {
       throw new NotFoundException(`User with id ${id} not found`);
     });
   }
@@ -21,7 +21,7 @@ export class UserService {
   }
 
   public async findUserByEmail(userEmail: string): Promise<UserEntity> {
-    return this.userRepo.findOne({ where: { email: userEmail } });
+    return this.userRepo.findOneOrFail({ where: { email: userEmail } });
   }
 
   public async getOrCreateUser(userEmail: string): Promise<UserEntity> {

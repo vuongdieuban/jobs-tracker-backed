@@ -5,10 +5,10 @@ import { JobPostEntity } from 'src/shared/entities/job-post.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { QueryFailedError, Repository } from 'typeorm';
 import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
+import { JobApplicationEntity } from '../shared/entities/job-application.entity';
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
 import { ApplicationUpdatedResponseDto } from './dto/response/application-updated-response.dto';
-import { JobApplicationEntity } from '../shared/entities/job-application.entity';
 import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';
 import { ReorderApplicationsService } from './reorder-applications.service';
 
