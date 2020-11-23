@@ -4,6 +4,6 @@ import { ReorderPositionService } from './services/reorder-position/reorder-posi
 @Module({
   imports: [],
   providers: [ReorderPositionService],
-  exports: []
+  exports: [ReorderPositionService],
 })
 export class SharedModule {}

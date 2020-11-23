@@ -2,6 +2,7 @@ import { BadGatewayException, BadRequestException, Injectable, NotFoundException
 import { InjectRepository } from '@nestjs/typeorm';
 import { JobApplicationStatusEntity } from 'src/shared/entities/job-application-status.entity';
 import { JobPostEntity } from 'src/shared/entities/job-post.entity';
+import { ReorderPositionService } from 'src/shared/services/reorder-position';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { QueryFailedError, Repository } from 'typeorm';
 import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
@@ -15,6 +16,7 @@ import { ReorderApplicationsService } from './reorder-applications.service';
 @Injectable()
 export class JobApplicationService {
   constructor(
+    private readonly reorderPositionService: ReorderPositionService,
     private readonly eventsPublisher: JobApplicationEventsPublisher,
     private readonly reorderService: ReorderApplicationsService,
     @InjectRepository(JobApplicationEntity)
@@ -26,6 +28,30 @@ export class JobApplicationService {
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
   ) {}
+
+  public async testReorder(applicationId: string, reorderDto: ReorderApplicationRequestDto) {
+    const { statusId: desiredStatusId } = reorderDto;
+    const { position: desiredPosition } = reorderDto;
+    if (!desiredPosition) {
+      throw new Error('Missing Position');
+    }
+
+    const statusPromise = this.applicationStatusRepo
+      .findOneOrFail(desiredStatusId, { relations: ['jobApplications'] })
+      .catch(e => {
+        throw new NotFoundException(`Status with id ${applicationId} not found`);
+      });
+
+    const applicationPromise = this.getApplicationById(applicationId);
+    const [status, application] = await Promise.all([statusPromise, applicationPromise]);
+
+    const updatedData = this.reorderPositionService.moveItemInSameList(
+      { id: application.id, position: desiredPosition },
+      status.jobApplications,
+    );
+    console.log('Updated Data', updatedData);
+    return 'Suucess';
+  }
 
   public async findAllApplicationsOfUser(userId: string): Promise<JobApplicationEntity[]> {
     return this.getAllApplicationsOfUser(userId);

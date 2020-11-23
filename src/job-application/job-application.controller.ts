@@ -9,7 +9,7 @@ import { ReorderApplicationRequestDto } from './dto/request/reorder-application-
 import { ApplicationUpdatedResponseDto } from './dto/response/application-updated-response.dto';
 import { JobApplicationService } from './job-application.service';
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('job-application')
 @ApiTags('job-application')
 export class JobApplicationController {
@@ -42,5 +42,10 @@ export class JobApplicationController {
     @Body() payload: ArchiveApplicationRequestDto,
   ): Promise<ApplicationUpdatedResponseDto> {
     return this.jobApplicationService.archive(id, payload.archive);
+  }
+
+  @Put('/test-reorder/:id')
+  public async testReorder(@Param('id') id: string, @Body() payload: ReorderApplicationRequestDto) {
+    return this.jobApplicationService.testReorder(id, payload);
   }
 }

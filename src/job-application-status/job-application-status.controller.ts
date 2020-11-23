@@ -4,7 +4,7 @@ import { JobApplicationStatusEntity } from '../shared/entities/job-application-s
 import { JobApplicationStatusService } from './job-application-status.service';
 
 @Controller('job-application-status')
-@ApiTags('platform')
+@ApiTags('job-application-status')
 export class JobApplicationStatusController {
   constructor(private readonly applicationStatusService: JobApplicationStatusService) {}
 

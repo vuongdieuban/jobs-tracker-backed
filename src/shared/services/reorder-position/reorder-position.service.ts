@@ -1,48 +1,48 @@
 import { Injectable } from '@nestjs/common';
+import { MIN_SPACE_BETWEEN_ITEM, SPACE_BETWEEN_ITEM } from 'src/shared/constants';
 
 interface Item {
-  id: number;
-  pos: number;
+  id: string;
+  position: number;
 }
 
 // const items: Item[] = [
-//   { id: 1, pos: 32767 },
-//   { id: 2, pos: 49151.5 },
-//   { id: 3, pos: 49151.6 },
-//   { id: 4, pos: 90000 },
-//   { id: 5, pos: 129000 },
+//   { id: 1, position: 32767 },
+//   { id: 2, position: 49151.5 },
+//   { id: 3, position: 49151.6 },
+//   { id: 4, position: 90000 },
+//   { id: 5, position: 129000 },
 // ];
 
 // const itemToMove: Item = {
 //   id: 5,
-//   pos: 60000,
+//   position: 60000,
 // };
-
-const SPACE_BETWEEN_ITEM = Math.pow(2, 14);
-const MIN_SPACE_BETWEEN_ITEM = 0.15;
 
 @Injectable()
 export class ReorderPositionService {
-  public moveItemInSameList(itemToMove: Item, items: Item[]): Item[] {
-    const { pos, id } = itemToMove;
+  public moveItemInSameList(itemToMove: Item, sortedItemList: Item[]): Item[] {
+    // sortedItemList: expect item list to be sorted by ASC before passing in.
+    // Best to query db with OrderBy ASC so we don't have to sort in memory
+    sortedItemList.sort((a, b) => a.position - b.position);
 
-    const item = items.find(i => i.id === id);
+    const { position, id } = itemToMove;
+
+    const item = sortedItemList.find(i => i.id === id);
     if (!item) {
       throw Error(`No item found with id ${id}`);
     }
 
     // temporary update with data sent in from the front-end
-    item.pos = pos;
+    item.position = position;
 
     // sort again so we know where it will be
-    items.sort((a, b) => a.pos - b.pos);
+    sortedItemList.sort((a, b) => a.position - b.position);
 
     // index after sort
-    const insertIndex = items.findIndex(app => app.id === id);
+    const insertIndex = sortedItemList.findIndex(app => app.id === id);
 
-    const updatedItems = this.calculateItemsPositionAfterInsertion(items, insertIndex);
-    console.log('Applications reordered', items);
-    console.log('updatedItems', updatedItems);
+    const updatedItems = this.calculateItemsPositionAfterInsertion(sortedItemList, insertIndex);
     return updatedItems;
   }
 
@@ -53,27 +53,27 @@ export class ReorderPositionService {
       const itemBehind = items[i - 1];
       const itemAhead = items[i + 1];
 
-      const positionBehind = itemBehind ? itemBehind.pos : 0;
+      const positionBehind = itemBehind ? itemBehind.position : 0;
 
       if (!itemAhead) {
         // last item in the list
-        item.pos = positionBehind + SPACE_BETWEEN_ITEM;
+        item.position = positionBehind + SPACE_BETWEEN_ITEM;
         updatedItems.push(item);
         return updatedItems;
       }
 
-      const positionAhead = itemAhead.pos;
+      const positionAhead = itemAhead.position;
       const spaceBetween = positionAhead - positionBehind;
 
       // if space between two items are more than MIN_SPACE_BETWEEN_ITEM then we can just insert between them
       // Otherwise the space is too small between them so we increment the space, keep increment them until they are large enough.
       if (spaceBetween > MIN_SPACE_BETWEEN_ITEM) {
-        item.pos = (positionAhead + positionBehind) / 2;
+        item.position = (positionAhead + positionBehind) / 2;
         updatedItems.push(item);
         return updatedItems;
       }
 
-      item.pos = positionBehind + SPACE_BETWEEN_ITEM;
+      item.position = positionBehind + SPACE_BETWEEN_ITEM;
       updatedItems.push(item);
     }
     return updatedItems;

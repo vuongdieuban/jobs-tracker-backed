@@ -1,3 +1,4 @@
+import { SPACE_BETWEEN_ITEM } from 'src/shared/constants';
 import { JobApplicationStatusEntity } from 'src/shared/entities/job-application-status.entity';
 import { JobApplicationEntity } from 'src/shared/entities/job-application.entity';
 import { JobPostEntity } from 'src/shared/entities/job-post.entity';
@@ -13,31 +14,31 @@ export async function jobApplicationsSeed(
   const repo = manager.getRepository<JobApplicationEntity>(JobApplicationEntity);
   const seeds = [
     {
-      position: 0,
+      position: SPACE_BETWEEN_ITEM,
       status: status[0],
       jobPost: jobPosts[0],
       user,
     },
     {
-      position: 1,
+      position: 2 * SPACE_BETWEEN_ITEM,
       status: status[0],
       jobPost: jobPosts[1],
       user,
     },
     {
-      position: 2,
+      position: 3 * SPACE_BETWEEN_ITEM,
       status: status[0],
       jobPost: jobPosts[2],
       user,
     },
     {
-      position: 0,
+      position: SPACE_BETWEEN_ITEM,
       status: status[1],
       jobPost: jobPosts[3],
       user,
     },
     {
-      position: 1,
+      position: 2 * SPACE_BETWEEN_ITEM,
       status: status[1],
       jobPost: jobPosts[4],
       user,
