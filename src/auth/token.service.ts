@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { access } from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
-import { UserEntity } from 'src/user/entities/user.entity';
+import { UserEntity } from 'src/shared/entities/user.entity';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { RefreshTokenEntity } from '../shared/entities/refresh-token.entity';

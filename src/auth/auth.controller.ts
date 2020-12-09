@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { CookieOptions, Request, Response } from 'express';
-import { UserEntity } from 'src/user/entities/user.entity';
+import { UserEntity } from 'src/shared/entities/user.entity';
 import { AuthService } from './auth.service';
 import { LoginRequestDto } from './dto/request/login-request.dto';
 import { LoginResponseDto } from './dto/response/login-response.dto';
@@ -38,7 +38,7 @@ export class AuthController {
   public async renewAccessToken(@Req() request: Request, @Res() response: Response): Promise<void> {
     const existedRefreshToken = this.extractRefreshTokenFromCookie(request);
     const [user, { refreshToken, accessToken }] = await this.authService.renewAccessToken(
-      existedRefreshToken
+      existedRefreshToken,
     );
 
     const sanitzedUser = this.sanitizeUser(user);
@@ -79,7 +79,7 @@ export class AuthController {
       sameSite: 'none',
       secure: true,
       httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     };
   }
 }

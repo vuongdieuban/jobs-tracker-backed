@@ -2,8 +2,8 @@ import { BadGatewayException, BadRequestException, Injectable, NotFoundException
 import { InjectRepository } from '@nestjs/typeorm';
 import { JobApplicationStatusEntity } from 'src/shared/entities/job-application-status.entity';
 import { JobPostEntity } from 'src/shared/entities/job-post.entity';
+import { UserEntity } from 'src/shared/entities/user.entity';
 import { ReorderPositionService } from 'src/shared/services/reorder-position';
-import { UserEntity } from 'src/user/entities/user.entity';
 import { QueryFailedError, Repository } from 'typeorm';
 import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 import { JobApplicationEntity } from '../shared/entities/job-application.entity';
@@ -37,15 +37,19 @@ export class JobApplicationService {
     }
 
     const statusPromise = this.applicationStatusRepo
-      .findOneOrFail(desiredStatusId, { relations: ['jobApplications'] })
-      .catch(e => {
-        throw new NotFoundException(`Status with id ${applicationId} not found`);
+      .createQueryBuilder('status')
+      .leftJoinAndSelect('status.jobApplications', 'application')
+      .where('status.id = :statusId', { statusId: desiredStatusId })
+      .orderBy('application.position', 'ASC')
+      .getOneOrFail()
+      .catch(() => {
+        throw new NotFoundException(`Not status found with id ${desiredStatusId}`);
       });
 
     const applicationPromise = this.getApplicationById(applicationId);
     const [status, application] = await Promise.all([statusPromise, applicationPromise]);
 
-    const updatedData = this.reorderPositionService.moveItemInSameList(
+    const updatedData = this.reorderPositionService.moveItemInSameList<JobApplicationEntity>(
       { id: application.id, position: desiredPosition },
       status.jobApplications,
     );

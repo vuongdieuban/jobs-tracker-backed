@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import * as moment from 'moment';
-import { UserEntity } from 'src/user/entities/user.entity';
+import { UserEntity } from 'src/shared/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { CredentialsTokens } from './interfaces/credentials-token';
 import { TokenService } from './token.service';

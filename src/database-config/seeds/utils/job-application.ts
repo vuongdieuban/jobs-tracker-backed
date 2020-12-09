@@ -2,7 +2,7 @@ import { SPACE_BETWEEN_ITEM } from 'src/shared/constants';
 import { JobApplicationStatusEntity } from 'src/shared/entities/job-application-status.entity';
 import { JobApplicationEntity } from 'src/shared/entities/job-application.entity';
 import { JobPostEntity } from 'src/shared/entities/job-post.entity';
-import { UserEntity } from 'src/user/entities/user.entity';
+import { UserEntity } from 'src/shared/entities/user.entity';
 import { EntityManager } from 'typeorm';
 
 export async function jobApplicationsSeed(

@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JobApplicationStatusEntity } from 'src/shared/entities/job-application-status.entity';
 import { JobPostEntity } from 'src/shared/entities/job-post.entity';
 import { SharedModule } from 'src/shared/shared.module';
-import { UserEntity } from 'src/user/entities/user.entity';
+import { UserEntity } from 'src/shared/entities/user.entity';
 import { JobApplicationEntity } from '../shared/entities/job-application.entity';
 import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';
 import { JobApplicationController } from './job-application.controller';

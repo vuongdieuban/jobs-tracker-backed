@@ -21,11 +21,7 @@ interface Item {
 
 @Injectable()
 export class ReorderPositionService {
-  public moveItemInSameList(itemToMove: Item, sortedItemList: Item[]): Item[] {
-    // sortedItemList: expect item list to be sorted by ASC before passing in.
-    // Best to query db with OrderBy ASC so we don't have to sort in memory
-    sortedItemList.sort((a, b) => a.position - b.position);
-
+  public moveItemInSameList<T extends Item>(itemToMove: Item, sortedItemList: Item[]): T[] {
     const { position, id } = itemToMove;
 
     const item = sortedItemList.find(i => i.id === id);
@@ -43,7 +39,7 @@ export class ReorderPositionService {
     const insertIndex = sortedItemList.findIndex(app => app.id === id);
 
     const updatedItems = this.calculateItemsPositionAfterInsertion(sortedItemList, insertIndex);
-    return updatedItems;
+    return updatedItems as T[];
   }
 
   private calculateItemsPositionAfterInsertion(items: Item[], insertIndex: number): Item[] {

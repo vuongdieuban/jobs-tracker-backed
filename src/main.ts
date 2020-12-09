@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -12,8 +15,9 @@ async function bootstrap() {
   app.enableCors({
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
-    origin: ['http://localhost:3000', 'https://ca.indeed.com'],
-    optionsSuccessStatus: 200
+    // TODO: * option for dev only, so chrome extension is allowed. Set to https in prod and try remove this
+    origin: ['http://localhost:3000', 'https://ca.indeed.com', '*'],
+    optionsSuccessStatus: 200,
   });
 
   app.useGlobalPipes(new ValidationPipe());
