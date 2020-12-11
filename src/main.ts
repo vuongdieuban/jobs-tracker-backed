@@ -16,7 +16,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     // TODO: * option for dev only, so chrome extension is allowed. Set to https in prod and try remove this
-    origin: ['http://localhost:3000', 'https://ca.indeed.com', '*'],
+    origin: ['http://localhost:3000', '*://*.indeed.com/*', '*'],
     optionsSuccessStatus: 200,
   });
 
