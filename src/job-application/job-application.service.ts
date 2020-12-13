@@ -1,6 +1,6 @@
 import { BadGatewayException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { JobApplicationStatusEntity } from 'src/shared/entities/job-application-status.entity';
+import { StatusEntity } from 'src/shared/entities/status.entity';
 import { JobPostEntity } from 'src/shared/entities/job-post.entity';
 import { UserEntity } from 'src/shared/entities/user.entity';
 import { ReorderPositionService } from 'src/shared/services/reorder-position';
@@ -21,8 +21,8 @@ export class JobApplicationService {
     private readonly reorderService: ReorderApplicationsService,
     @InjectRepository(JobApplicationEntity)
     private readonly jobApplicationRepo: Repository<JobApplicationEntity>,
-    @InjectRepository(JobApplicationStatusEntity)
-    private readonly applicationStatusRepo: Repository<JobApplicationStatusEntity>,
+    @InjectRepository(StatusEntity)
+    private readonly statusRepo: Repository<StatusEntity>,
     @InjectRepository(JobPostEntity)
     private readonly jobPostReo: Repository<JobPostEntity>,
     @InjectRepository(UserEntity)
@@ -36,7 +36,7 @@ export class JobApplicationService {
       throw new Error('Missing Position');
     }
 
-    const statusPromise = this.applicationStatusRepo
+    const statusPromise = this.statusRepo
       .createQueryBuilder('status')
       .leftJoinAndSelect('status.jobApplications', 'application')
       .where('status.id = :statusId', { statusId: desiredStatusId })
@@ -66,7 +66,7 @@ export class JobApplicationService {
       const { jobPostId, statusId } = payload;
       const jobPostPromise = this.jobPostReo.findOneOrFail(jobPostId, { relations: ['platform'] });
       const userPromise = this.userRepo.findOneOrFail(userId);
-      const statusPromise = this.applicationStatusRepo.findOneOrFail(statusId);
+      const statusPromise = this.statusRepo.findOneOrFail(statusId);
       const lastPositionPromise = this.getLastPositionFromStatus(statusId, userId);
       const [jobPost, status, user, lastPosition] = await Promise.all([
         jobPostPromise,
@@ -113,7 +113,7 @@ export class JobApplicationService {
     const { statusId: desiredStatusId } = reorderDto;
     let { position: desiredPosition } = reorderDto;
 
-    const statusPromise = this.applicationStatusRepo.findOneOrFail(desiredStatusId).catch(e => {
+    const statusPromise = this.statusRepo.findOneOrFail(desiredStatusId).catch(e => {
       throw new NotFoundException(`Status with id ${applicationId} not found`);
     });
 
@@ -150,7 +150,7 @@ export class JobApplicationService {
 
   private async moveApplication(
     application: JobApplicationEntity,
-    desiredStatus: JobApplicationStatusEntity,
+    desiredStatus: StatusEntity,
     desiredPosition: number,
   ): Promise<JobApplicationEntity> {
     if (application.status.id !== desiredStatus.id) {

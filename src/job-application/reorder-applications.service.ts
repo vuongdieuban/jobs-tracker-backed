@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { JobApplicationStatusEntity } from 'src/shared/entities/job-application-status.entity';
+import { StatusEntity } from 'src/shared/entities/status.entity';
 import { Repository } from 'typeorm';
 import { JobApplicationEntity } from '../shared/entities/job-application.entity';
 
@@ -10,7 +10,7 @@ interface ApplicationToMove {
 }
 
 interface ApplicationStatusChange extends ApplicationToMove {
-  desiredStatus: JobApplicationStatusEntity;
+  desiredStatus: StatusEntity;
 }
 
 @Injectable()

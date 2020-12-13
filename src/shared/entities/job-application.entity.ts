@@ -1,11 +1,11 @@
 import { AbstractEntity } from 'src/shared/entities/abstract.entity';
-import { JobApplicationStatusEntity } from 'src/shared/entities/job-application-status.entity';
+import { StatusEntity } from 'src/shared/entities/status.entity';
 import { JobPostEntity } from 'src/shared/entities/job-post.entity';
 import { UserEntity } from 'src/shared/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 
 @Entity()
-// unique composite key, one user should only have one application to a single jobPost. NOTE: field names (not database column names)
+// unique composite key, one user should only have one application to a single jobPost. NOTE: class fields name (not database column names)
 @Unique(['user', 'jobPost'])
 export class JobApplicationEntity extends AbstractEntity {
   @Column({ name: 'position' })
@@ -22,11 +22,11 @@ export class JobApplicationEntity extends AbstractEntity {
   user: UserEntity;
 
   @ManyToOne(
-    type => JobApplicationStatusEntity,
+    type => StatusEntity,
     status => status.jobApplications,
   )
   @JoinColumn({ name: 'status_id' })
-  status: JobApplicationStatusEntity;
+  status: StatusEntity;
 
   @ManyToOne(
     type => JobPostEntity,

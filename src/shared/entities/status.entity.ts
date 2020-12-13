@@ -3,7 +3,7 @@ import { JobApplicationEntity } from 'src/shared/entities/job-application.entity
 import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity()
-export class JobApplicationStatusEntity extends AbstractEntity {
+export class StatusEntity extends AbstractEntity {
   @Column({ name: 'name' })
   name: string;
 
