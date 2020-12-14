@@ -1,0 +1,14 @@
+{
+  "eslintIntegration": true,
+  "tabWidth": 2,
+  "useTabs": false,
+  "singleQuote": true,
+  "jsxBracketSameLine": true,
+  "proseWrap": "always",
+  "bracketSpacing": true,
+  "htmlWhitespaceSensitivity": "ignore",
+  "printWidth": 109,
+  "jsxSingleQuote": true,
+  "arrowParens": "avoid",
+  "trailingComma": "all"
+}
