@@ -6,6 +6,11 @@ interface Item {
   position: number;
 }
 
+interface ReorderResponse<T> {
+  insertedItem: T; // inserted item with its position calculated
+  updatedItems: T[]; // all the items that are affected by this insertion
+}
+
 // const items: Item[] = [
 //   { id: 1, position: 32767 },
 //   { id: 2, position: 49151.5 },
@@ -21,7 +26,7 @@ interface Item {
 
 @Injectable()
 export class ReorderPositionService {
-  public moveItemInSameList<T extends Item>(itemToMove: Item, sortedItemList: Item[]): T[] {
+  public moveItemInSameList<T extends Item>(itemToMove: Item, sortedItemList: Item[]): ReorderResponse<T> {
     const { position, id } = itemToMove;
 
     const item = sortedItemList.find(i => i.id === id);
@@ -39,7 +44,10 @@ export class ReorderPositionService {
     const insertIndex = sortedItemList.findIndex(app => app.id === id);
 
     const updatedItems = this.calculateItemsPositionAfterInsertion(sortedItemList, insertIndex);
-    return updatedItems as T[];
+    return {
+      insertedItem: updatedItems[insertIndex] as T,
+      updatedItems: updatedItems as T[],
+    };
   }
 
   private calculateItemsPositionAfterInsertion(items: Item[], insertIndex: number): Item[] {
@@ -61,8 +69,9 @@ export class ReorderPositionService {
       const positionAhead = itemAhead.position;
       const spaceBetween = positionAhead - positionBehind;
 
-      // if space between two items are more than MIN_SPACE_BETWEEN_ITEM then we can just insert between them
-      // Otherwise the space is too small between them so we increment the space, keep increment them until they are large enough.
+      /* If space between two items are more than MIN_SPACE_BETWEEN_ITEM then we can just insert between them.
+        Otherwise, the space is too small between them so we increment the space, 
+        keep increment them until they are large enough. */
       if (spaceBetween > MIN_SPACE_BETWEEN_ITEM) {
         item.position = (positionAhead + positionBehind) / 2;
         updatedItems.push(item);

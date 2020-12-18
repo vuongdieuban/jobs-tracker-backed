@@ -33,7 +33,8 @@ export class JobApplicationController {
     @Param('id') id: string,
     @Body() payload: ReorderApplicationRequestDto,
   ): Promise<ApplicationUpdatedResponseDto> {
-    return this.jobApplicationService.reorder(id, payload);
+    const data = await this.jobApplicationService.reorder(id, payload);
+    return this.parseApplicationUpdatedResponse(data);
   }
 
   @Put('/archive/:id')
@@ -41,11 +42,18 @@ export class JobApplicationController {
     @Param('id') id: string,
     @Body() payload: ArchiveApplicationRequestDto,
   ): Promise<ApplicationUpdatedResponseDto> {
-    return this.jobApplicationService.archive(id, payload.archive);
+    const data = await this.jobApplicationService.archive(id, payload.archive);
+    return this.parseApplicationUpdatedResponse(data);
   }
 
-  @Put('/test-reorder/:id')
-  public async testReorder(@Param('id') id: string, @Body() payload: ReorderApplicationRequestDto) {
-    return this.jobApplicationService.testReorder(id, payload);
+  private parseApplicationUpdatedResponse(application: JobApplicationEntity): ApplicationUpdatedResponseDto {
+    return {
+      id: application.id,
+      position: application.position,
+      archive: application.archive,
+      statusId: application.status.id,
+      jobPostId: application.jobPost.id,
+      userId: application.user.id,
+    };
   }
 }

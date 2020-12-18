@@ -58,7 +58,10 @@ export class JobApplicationEventsPublisher {
     this.publish(data);
   }
 
-  public applicationArchived(application: JobApplicationEntity): void {}
+  public applicationArchived(application: JobApplicationEntity): void {
+    console.log('archived', application);
+    return;
+  }
 
   private publish(data: ApplicationEvent): void {
     this.source.next(data);
