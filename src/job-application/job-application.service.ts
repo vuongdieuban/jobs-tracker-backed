@@ -79,9 +79,6 @@ export class JobApplicationService {
     payload: ReorderApplicationRequestDto,
   ): Promise<JobApplicationEntity> {
     const { statusId: desiredStatusId, position: desiredPosition } = payload;
-    if (!desiredPosition) {
-      throw new BadRequestException('Missing Position');
-    }
 
     const statusPromise = this.statusRepo
       .createQueryBuilder('status')
@@ -96,15 +93,11 @@ export class JobApplicationService {
     const applicationPromise = this.getApplicationById(applicationId);
     const [status, application] = await Promise.all([statusPromise, applicationPromise]);
 
-    const updatedData = this.reorderPositionService.moveItemInSameList<JobApplicationEntity>(
-      { id: application.id, position: desiredPosition },
-      status.jobApplications,
-    );
+    if (typeof desiredPosition === 'string') {
+      return application;
+    }
 
-    const { insertedItem, updatedItems } = updatedData;
-    await this.jobApplicationRepo.save(updatedItems);
-
-    return insertedItem;
+    return this.moveApplicationToSpecificPosition(application, status.jobApplications, desiredPosition);
   }
 
   private publishApplicationMovedEvent(
@@ -118,23 +111,25 @@ export class JobApplicationService {
     this.eventsPublisher.applicationStatusChanged(originalStatusId, updatedApplication);
   }
 
-  private async moveApplication(
-    application: JobApplicationEntity,
-    desiredStatus: StatusEntity,
+  private moveApplicationToTopOrBottomOfList(position: 'top' | 'botom') {
+    console.log('Move Position', position);
+    return;
+  }
+
+  private async moveApplicationToSpecificPosition(
+    applicationToInsert: JobApplicationEntity,
+    sortedApplicationsList: JobApplicationEntity[],
     desiredPosition: number,
   ): Promise<JobApplicationEntity> {
-    if (application.status.id !== desiredStatus.id) {
-      console.log('item inserted');
-      return this.reorderService.changeApplicationStatus({ application, desiredPosition, desiredStatus });
-    }
+    const updatedData = this.reorderPositionService.moveItemInSameList<JobApplicationEntity>(
+      { id: applicationToInsert.id, position: desiredPosition },
+      sortedApplicationsList,
+    );
 
-    if (desiredPosition > application.position) {
-      console.log('item move down');
-      return this.reorderService.moveApplicationDownWithinSameStatus({ application, desiredPosition });
-    } else {
-      console.log('item move up');
-      return this.reorderService.moveApplicationUpWithinSameStatus({ application, desiredPosition });
-    }
+    const { insertedItem, updatedItems } = updatedData;
+    await this.jobApplicationRepo.save(updatedItems);
+
+    return insertedItem;
   }
 
   private async getApplicationById(applicationId: string): Promise<JobApplicationEntity> {
