@@ -11,6 +11,7 @@ import { CreateApplicationRequestDto } from './dto/request/create-application-re
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
 import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';
 import { ReorderApplicationsService } from './reorder-applications.service';
+import { PositionTopOrBottom } from './types';
 
 @Injectable()
 export class JobApplicationService {
@@ -111,7 +112,7 @@ export class JobApplicationService {
     this.eventsPublisher.applicationStatusChanged(originalStatusId, updatedApplication);
   }
 
-  private moveApplicationToTopOrBottomOfList(position: 'top' | 'botom') {
+  private moveApplicationToTopOrBottomOfList(position: PositionTopOrBottom) {
     console.log('Move Position', position);
     return;
   }
