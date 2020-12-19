@@ -6,12 +6,12 @@ import { platformSeed } from './platform';
 import { userSeed } from './user';
 
 export async function runDbSeed(manager: EntityManager) {
-  const [status, user, jobPosts] = await Promise.all([
+  const [status, user, platform] = await Promise.all([
     statusSeed(manager),
     userSeed(manager),
-    jobPostsSeed(manager),
+    platformSeed(manager),
   ]);
 
-  await platformSeed(manager, jobPosts);
+  const jobPosts = await jobPostsSeed(manager, platform);
   await jobApplicationsSeed(manager, user, status, jobPosts);
 }

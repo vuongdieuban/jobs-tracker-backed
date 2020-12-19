@@ -1,7 +1,5 @@
 import { AbstractEntity } from 'src/shared/entities/abstract.entity';
-import { JobApplicationEntity } from 'src/shared/entities/job-application.entity';
-import { RefreshTokenEntity } from 'src/shared/entities/refresh-token.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
 @Entity()
 export class UserEntity extends AbstractEntity {
@@ -13,16 +11,4 @@ export class UserEntity extends AbstractEntity {
 
   @Column({ unique: true, name: 'email' })
   email: string;
-
-  @OneToMany(
-    type => JobApplicationEntity,
-    jobApplication => jobApplication.user,
-  )
-  jobApplications: JobApplicationEntity[];
-
-  @OneToMany(
-    type => RefreshTokenEntity,
-    refreshToken => refreshToken.user,
-  )
-  refreshTokens: RefreshTokenEntity[];
 }

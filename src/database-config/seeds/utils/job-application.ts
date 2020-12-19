@@ -12,7 +12,7 @@ export async function jobApplicationsSeed(
   jobPosts: JobPostEntity[],
 ): Promise<JobApplicationEntity[]> {
   const repo = manager.getRepository<JobApplicationEntity>(JobApplicationEntity);
-  const seeds = [
+  const data = repo.create([
     {
       position: SPACE_BETWEEN_ITEM,
       status: status[0],
@@ -43,8 +43,7 @@ export async function jobApplicationsSeed(
       jobPost: jobPosts[4],
       user,
     },
-  ];
+  ]);
 
-  const data = seeds.map(seed => repo.create(seed));
   return repo.save(data);
 }

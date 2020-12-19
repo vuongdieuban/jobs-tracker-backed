@@ -1,7 +1,6 @@
 import { AbstractEntity } from 'src/shared/entities/abstract.entity';
-import { JobApplicationEntity } from 'src/shared/entities/job-application.entity';
 import { PlatformEntity } from 'src/shared/entities/platform.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, Unique } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 
 @Entity()
 @Unique(['platformJobKey', 'platform'])
@@ -21,16 +20,7 @@ export class JobPostEntity extends AbstractEntity {
   @Column({ name: 'platform_job_key' })
   platformJobKey: string;
 
-  @ManyToOne(
-    type => PlatformEntity,
-    platform => platform.jobPosts,
-  )
+  @ManyToOne(() => PlatformEntity)
   @JoinColumn({ name: 'platform_id' })
   platform: PlatformEntity;
-
-  @OneToMany(
-    type => JobApplicationEntity,
-    jobApplication => jobApplication.jobPost,
-  )
-  jobApplications: JobApplicationEntity[];
 }

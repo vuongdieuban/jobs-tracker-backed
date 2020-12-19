@@ -3,7 +3,6 @@ import { EntityManager } from 'typeorm';
 
 export async function statusSeed(manager: EntityManager): Promise<StatusEntity[]> {
   const repo = manager.getRepository<StatusEntity>(StatusEntity);
-  const seeds = [{ name: 'Applied' }, { name: 'Wish List' }, { name: 'Interviewed' }];
-  const data = seeds.map(seed => repo.create(seed));
+  const data = repo.create([{ name: 'Applied' }, { name: 'Wish List' }, { name: 'Interviewed' }]);
   return repo.save(data);
 }

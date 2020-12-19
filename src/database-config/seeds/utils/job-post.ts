@@ -1,15 +1,20 @@
 import { JobPostEntity } from 'src/shared/entities/job-post.entity';
+import { PlatformEntity } from 'src/shared/entities/platform.entity';
 import { EntityManager } from 'typeorm';
 
-export async function jobPostsSeed(manager: EntityManager): Promise<JobPostEntity[]> {
+export async function jobPostsSeed(
+  manager: EntityManager,
+  platform: PlatformEntity,
+): Promise<JobPostEntity[]> {
   const repo = manager.getRepository<JobPostEntity>(JobPostEntity);
-  const seeds = [
+  const data = repo.create([
     {
       title: 'Dev1',
       url: 'a.com',
       companyName: 'ComA',
       location: 'BC',
       platformJobKey: 'abc',
+      platform,
     },
     {
       title: 'Dev2',
@@ -17,6 +22,7 @@ export async function jobPostsSeed(manager: EntityManager): Promise<JobPostEntit
       companyName: 'ComA',
       location: 'BC',
       platformJobKey: 'def',
+      platform,
     },
     {
       title: 'Dev3',
@@ -24,6 +30,7 @@ export async function jobPostsSeed(manager: EntityManager): Promise<JobPostEntit
       companyName: 'ComA',
       location: 'BC',
       platformJobKey: 'ijk',
+      platform,
     },
     {
       title: 'Dev4',
@@ -31,6 +38,7 @@ export async function jobPostsSeed(manager: EntityManager): Promise<JobPostEntit
       companyName: 'ComA',
       location: 'BC',
       platformJobKey: 'ytr',
+      platform,
     },
     {
       title: 'Dev5',
@@ -38,9 +46,9 @@ export async function jobPostsSeed(manager: EntityManager): Promise<JobPostEntit
       companyName: 'ComA',
       location: 'BC',
       platformJobKey: 'xyz',
+      platform,
     },
-  ];
+  ]);
 
-  const data = seeds.map(seed => repo.create(seed));
   return repo.save(data);
 }

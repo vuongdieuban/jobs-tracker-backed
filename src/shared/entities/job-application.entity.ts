@@ -5,7 +5,7 @@ import { UserEntity } from 'src/shared/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 
 @Entity()
-// unique composite key, one user should only have one application to a single jobPost. NOTE: class fields name (not database column names)
+// Unique composite key, one user should only have one application to a single jobPost.  NOTE: class fields name (not database column names)
 @Unique(['user', 'jobPost'])
 export class JobApplicationEntity extends AbstractEntity {
   @Column({ name: 'position' })
@@ -14,24 +14,15 @@ export class JobApplicationEntity extends AbstractEntity {
   @Column({ name: 'archive', default: false })
   archive: boolean;
 
-  @ManyToOne(
-    type => UserEntity,
-    user => user.jobApplications,
-  )
+  @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 
-  @ManyToOne(
-    type => StatusEntity,
-    status => status.jobApplications,
-  )
+  @ManyToOne(() => StatusEntity)
   @JoinColumn({ name: 'status_id' })
   status: StatusEntity;
 
-  @ManyToOne(
-    type => JobPostEntity,
-    post => post.jobApplications,
-  )
+  @ManyToOne(() => JobPostEntity)
   @JoinColumn({ name: 'job_post_id' })
   jobPost: JobPostEntity;
 }

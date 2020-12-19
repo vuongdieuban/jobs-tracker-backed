@@ -81,6 +81,8 @@ export class JobApplicationService {
   ): Promise<JobApplicationEntity> {
     const { statusId: desiredStatusId, position: desiredPosition } = payload;
 
+    // TODO: get applications separately, only need to join for status.
+    // Also, remove all the OneToMany, only need the ManyToOne
     const statusPromise = this.statusRepo
       .createQueryBuilder('status')
       .leftJoinAndSelect('status.jobApplications', 'application')

@@ -6,6 +6,7 @@ import { JobApplicationEntity } from '../shared/entities/job-application.entity'
 import { ArchiveApplicationRequestDto } from './dto/request/archive-application-request.dto';
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
+import { ApplicationReorderedResponseDto } from './dto/response';
 import { ApplicationUpdatedResponseDto } from './dto/response/application-updated-response.dto';
 import { JobApplicationService } from './job-application.service';
 
@@ -32,9 +33,9 @@ export class JobApplicationController {
   public async reorder(
     @Param('id') id: string,
     @Body() payload: ReorderApplicationRequestDto,
-  ): Promise<ApplicationUpdatedResponseDto> {
+  ): Promise<ApplicationReorderedResponseDto> {
     const data = await this.jobApplicationService.reorder(id, payload);
-    return this.parseApplicationUpdatedResponse(data);
+    return this.parseApplicationReorderedResponse(data);
   }
 
   @Put('/archive/:id')
@@ -46,14 +47,22 @@ export class JobApplicationController {
     return this.parseApplicationUpdatedResponse(data);
   }
 
-  private parseApplicationUpdatedResponse(application: JobApplicationEntity): ApplicationUpdatedResponseDto {
+  private parseApplicationUpdatedResponse(data: JobApplicationEntity): ApplicationUpdatedResponseDto {
     return {
-      id: application.id,
-      position: application.position,
-      archive: application.archive,
-      statusId: application.status.id,
-      jobPostId: application.jobPost.id,
-      userId: application.user.id,
+      id: data.id,
+      position: data.position,
+      archive: data.archive,
+      statusId: data.status.id,
+      jobPostId: data.jobPost.id,
+      userId: data.user.id,
+    };
+  }
+
+  private parseApplicationReorderedResponse(data: JobApplicationEntity): ApplicationReorderedResponseDto {
+    return {
+      id: data.id,
+      position: data.position,
+      statusId: data.status.id,
     };
   }
 }

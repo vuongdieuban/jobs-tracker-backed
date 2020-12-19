@@ -72,7 +72,7 @@ module.exports = {
     '@typescript-eslint/semi': ['error', 'always'],
     'arrow-parens': ['off', 'always'],
     'max-len': [
-      'error',
+      'warn',
       {
         code: 110,
       },
