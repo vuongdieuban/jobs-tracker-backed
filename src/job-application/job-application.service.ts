@@ -10,7 +10,6 @@ import { JobApplicationEntity } from '../shared/entities/job-application.entity'
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
 import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';
-import { ReorderApplicationsService } from './reorder-applications.service';
 import { PositionTopOrBottom } from './types';
 
 @Injectable()
@@ -18,7 +17,6 @@ export class JobApplicationService {
   constructor(
     private readonly reorderPositionService: ReorderPositionService,
     private readonly eventsPublisher: JobApplicationEventsPublisher,
-    private readonly reorderService: ReorderApplicationsService,
     @InjectRepository(JobApplicationEntity)
     private readonly jobApplicationRepo: Repository<JobApplicationEntity>,
     @InjectRepository(StatusEntity)

@@ -8,7 +8,6 @@ import { JobApplicationEntity } from '../shared/entities/job-application.entity'
 import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';
 import { JobApplicationController } from './job-application.controller';
 import { JobApplicationService } from './job-application.service';
-import { ReorderApplicationsService } from './reorder-applications.service';
 
 @Module({
   imports: [
@@ -16,7 +15,7 @@ import { ReorderApplicationsService } from './reorder-applications.service';
     SharedModule,
   ],
   controllers: [JobApplicationController],
-  providers: [JobApplicationService, ReorderApplicationsService, JobApplicationEventsPublisher],
+  providers: [JobApplicationService, JobApplicationEventsPublisher],
   exports: [JobApplicationEventsPublisher],
 })
 export class JobApplicationModule {}
