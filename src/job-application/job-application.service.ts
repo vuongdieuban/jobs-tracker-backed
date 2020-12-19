@@ -45,11 +45,12 @@ export class JobApplicationService {
         lastPositionPromise,
       ]);
 
-      const application = new JobApplicationEntity();
-      application.jobPost = jobPost;
-      application.status = status;
-      application.user = user;
-      application.position = lastPosition; // last position in this status
+      const application = this.jobApplicationRepo.create({
+        jobPost,
+        status,
+        user,
+        position: lastPosition,
+      });
 
       const createdApplication = await application.save();
       this.eventsPublisher.applicationCreated(createdApplication);
@@ -67,10 +68,10 @@ export class JobApplicationService {
 
   public async archive(applicationId: string, archiveValue: boolean): Promise<JobApplicationEntity> {
     const application = await this.getApplicationById(applicationId);
-    const updatedData = archiveValue
-      ? await this.reorderService.archiveApplication(application)
-      : await this.reorderService.unarchiveApplication(application);
-    return updatedData;
+    // const updatedData = archiveValue;
+    // ? await this.reorderService.archiveApplication(application)
+    // : await this.reorderService.unarchiveApplication(application);
+    return application;
   }
 
   public async reorder(
