@@ -1,16 +1,17 @@
-import { BadGatewayException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadGatewayException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StatusEntity } from 'src/shared/entities/status.entity';
 import { JobPostEntity } from 'src/shared/entities/job-post.entity';
 import { UserEntity } from 'src/shared/entities/user.entity';
 import { ReorderPositionService } from 'src/shared/services/reorder-position';
-import { QueryFailedError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 import { JobApplicationEntity } from '../shared/entities/job-application.entity';
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
 import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';
 import { PositionTopOrBottom } from './types';
+import { SPACE_BETWEEN_ITEM } from 'src/shared/constants';
 
 @Injectable()
 export class JobApplicationService {
@@ -37,7 +38,7 @@ export class JobApplicationService {
       const jobPostPromise = this.jobPostReo.findOneOrFail(jobPostId, { relations: ['platform'] });
       const userPromise = this.userRepo.findOneOrFail(userId);
       const statusPromise = this.statusRepo.findOneOrFail(statusId);
-      const lastPositionPromise = this.getLastPositionFromStatus(statusId, userId);
+      const lastPositionPromise = this.countApplicationsFromStatus(statusId, userId);
       const [jobPost, status, user, lastPosition] = await Promise.all([
         jobPostPromise,
         statusPromise,
@@ -58,8 +59,6 @@ export class JobApplicationService {
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
         throw new NotFoundException(error.message);
-      } else if (error instanceof QueryFailedError) {
-        throw new BadRequestException(error.message);
       } else {
         throw new BadGatewayException(error.message);
       }
@@ -78,28 +77,25 @@ export class JobApplicationService {
     applicationId: string,
     payload: ReorderApplicationRequestDto,
   ): Promise<JobApplicationEntity> {
-    const { statusId: desiredStatusId, position: desiredPosition } = payload;
+    const { statusId, position } = payload;
 
-    // TODO: get applications separately, only need to join for status.
-    // Also, remove all the OneToMany, only need the ManyToOne
-    const statusPromise = this.statusRepo
-      .createQueryBuilder('status')
-      .leftJoinAndSelect('status.jobApplications', 'application')
-      .where('status.id = :statusId', { statusId: desiredStatusId })
-      .orderBy('application.position', 'ASC')
-      .getOneOrFail()
-      .catch(() => {
-        throw new NotFoundException(`Not status found with id ${desiredStatusId}`);
-      });
+    const statusPromise = this.statusRepo.findOneOrFail({ id: statusId }).catch(() => {
+      throw new NotFoundException(`No status found with id ${statusId}`);
+    });
 
     const applicationPromise = this.getApplicationById(applicationId);
-    const [status, application] = await Promise.all([statusPromise, applicationPromise]);
+    const applicationListPromise = this.getAllApplicationsFromStatus(statusId);
+    const [, application, applicationList] = await Promise.all([
+      statusPromise,
+      applicationPromise,
+      applicationListPromise,
+    ]);
 
-    if (typeof desiredPosition === 'string') {
-      return application;
+    if (typeof position === 'string') {
+      return this.moveApplicationToTopOrBottomOfList(application, applicationList, position);
     }
 
-    return this.moveApplicationToSpecificPosition(application, status.jobApplications, desiredPosition);
+    return this.moveApplicationToSpecificPosition(application, applicationList, position);
   }
 
   private publishApplicationMovedEvent(
@@ -113,18 +109,31 @@ export class JobApplicationService {
     this.eventsPublisher.applicationStatusChanged(originalStatusId, updatedApplication);
   }
 
-  private moveApplicationToTopOrBottomOfList(position: PositionTopOrBottom) {
-    console.log('Move Position', position);
-    return;
+  private async moveApplicationToTopOrBottomOfList(
+    applicationToInsert: JobApplicationEntity,
+    sortedApplicationsList: JobApplicationEntity[],
+    position: PositionTopOrBottom,
+  ): Promise<JobApplicationEntity> {
+    const listLength = sortedApplicationsList.length;
+    if (position === 'top' || listLength === 0) {
+      return this.moveApplicationToSpecificPosition(applicationToInsert, sortedApplicationsList, 0);
+    }
+
+    const currentBottomApplication = sortedApplicationsList[listLength - 1]; // last item in the list
+    applicationToInsert.position = currentBottomApplication.position + SPACE_BETWEEN_ITEM;
+
+    await this.jobApplicationRepo.save(applicationToInsert);
+
+    return applicationToInsert;
   }
 
   private async moveApplicationToSpecificPosition(
     applicationToInsert: JobApplicationEntity,
     sortedApplicationsList: JobApplicationEntity[],
-    desiredPosition: number,
+    position: number,
   ): Promise<JobApplicationEntity> {
     const updatedData = this.reorderPositionService.moveItemInSameList<JobApplicationEntity>(
-      { id: applicationToInsert.id, position: desiredPosition },
+      { id: applicationToInsert.id, position },
       sortedApplicationsList,
     );
 
@@ -135,13 +144,9 @@ export class JobApplicationService {
   }
 
   private async getApplicationById(applicationId: string): Promise<JobApplicationEntity> {
-    return this.jobApplicationRepo
-      .findOneOrFail(applicationId, {
-        relations: ['status', 'jobPost', 'jobPost.platform', 'user'],
-      })
-      .catch(() => {
-        throw new NotFoundException(`Application with id ${applicationId} not found`);
-      });
+    return this.jobApplicationRepo.findOneOrFail(applicationId).catch(() => {
+      throw new NotFoundException(`Application with id ${applicationId} not found`);
+    });
   }
 
   private async getAllApplicationsOfUser(userId: string): Promise<JobApplicationEntity[]> {
@@ -151,11 +156,20 @@ export class JobApplicationService {
     });
   }
 
-  private async getLastPositionFromStatus(statusId: string, userId: string): Promise<number> {
+  private async countApplicationsFromStatus(statusId: string, userId: string): Promise<number> {
     return this.jobApplicationRepo.count({
       user: { id: userId },
       status: { id: statusId },
       archive: false,
     });
+  }
+
+  private async getAllApplicationsFromStatus(statusId: string): Promise<JobApplicationEntity[]> {
+    return this.jobApplicationRepo
+      .createQueryBuilder('application')
+      .leftJoinAndSelect('application.status', 'status')
+      .where('status.id = :statusId', { statusId: statusId })
+      .orderBy('application.position', 'ASC')
+      .getMany();
   }
 }
