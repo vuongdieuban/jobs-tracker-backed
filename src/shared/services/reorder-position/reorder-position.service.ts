@@ -26,26 +26,26 @@ interface ReorderResponse<T> {
 
 @Injectable()
 export class ReorderPositionService {
-  public moveItemInSameList<T extends Item>(itemToMove: Item, sortedItemList: Item[]): ReorderResponse<T> {
-    const { position, id } = itemToMove;
+  public moveItemInSameList<T extends Item>(itemToMove: Item, itemList: Item[]): ReorderResponse<T> {
+    const { position: desiredPosition, id } = itemToMove;
 
-    const item = sortedItemList.find(i => i.id === id);
+    const item = itemList.find(i => i.id === id);
     if (!item) {
-      throw Error(`No item found with id ${id}`);
+      throw new Error(`No item found with id ${id} in itemList when try to reorder`);
     }
 
     // temporary update with data sent in from the front-end
-    item.position = position;
+    item.position = desiredPosition;
 
-    // sort again so we know where it will be
-    sortedItemList.sort((a, b) => a.position - b.position);
+    // sort items so we know where it will be
+    itemList.sort((a, b) => a.position - b.position);
 
     // index after sort
-    const insertIndex = sortedItemList.findIndex(app => app.id === id);
+    const insertIndex = itemList.findIndex(app => app.id === id);
 
-    const updatedItems = this.calculateItemsPositionAfterInsertion(sortedItemList, insertIndex);
+    const updatedItems = this.calculateItemsPositionAfterInsertion(itemList, insertIndex);
     return {
-      insertedItem: sortedItemList[insertIndex] as T,
+      insertedItem: itemList[insertIndex] as T,
       updatedItems: updatedItems as T[],
     };
   }

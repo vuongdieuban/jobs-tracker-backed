@@ -85,11 +85,17 @@ export class JobApplicationService {
 
     const applicationPromise = this.getApplicationById(applicationId);
     const applicationListPromise = this.getAllApplicationsFromStatus(statusId);
-    const [, application, applicationList] = await Promise.all([
+    const [status, application, applicationList] = await Promise.all([
       statusPromise,
       applicationPromise,
       applicationListPromise,
     ]);
+
+    if (application.status.id !== statusId) {
+      // status changed -> update status
+      application.status = status;
+      applicationList.push(application);
+    }
 
     if (typeof position === 'string') {
       return this.moveApplicationToTopOrBottomOfList(application, applicationList, position);
@@ -98,28 +104,17 @@ export class JobApplicationService {
     return this.moveApplicationToSpecificPosition(application, applicationList, position);
   }
 
-  private publishApplicationMovedEvent(
-    originalStatusId: string,
-    updatedApplication: JobApplicationEntity,
-  ): void {
-    if (originalStatusId === updatedApplication.status.id) {
-      this.eventsPublisher.applicationReordered(updatedApplication);
-      return;
-    }
-    this.eventsPublisher.applicationStatusChanged(originalStatusId, updatedApplication);
-  }
-
   private async moveApplicationToTopOrBottomOfList(
     applicationToInsert: JobApplicationEntity,
-    sortedApplicationsList: JobApplicationEntity[],
+    applicationList: JobApplicationEntity[],
     desiredPosition: PositionTopOrBottom,
   ): Promise<JobApplicationEntity> {
-    const listLength = sortedApplicationsList.length;
+    const listLength = applicationList.length;
     if (desiredPosition === 'top' || listLength === 0) {
-      return this.moveApplicationToSpecificPosition(applicationToInsert, sortedApplicationsList, 0);
+      return this.moveApplicationToSpecificPosition(applicationToInsert, applicationList, 0);
     }
 
-    const currentBottomApplication = sortedApplicationsList[listLength - 1]; // last item in the list
+    const currentBottomApplication = applicationList[listLength - 1]; // last item in the list
     applicationToInsert.position = currentBottomApplication.position + SPACE_BETWEEN_ITEM;
 
     await this.jobApplicationRepo.save(applicationToInsert);
@@ -128,12 +123,12 @@ export class JobApplicationService {
 
   private async moveApplicationToSpecificPosition(
     applicationToInsert: JobApplicationEntity,
-    sortedApplicationsList: JobApplicationEntity[],
+    applicationList: JobApplicationEntity[],
     desiredPosition: number,
   ): Promise<JobApplicationEntity> {
     const updatedData = this.reorderPositionService.moveItemInSameList<JobApplicationEntity>(
       { id: applicationToInsert.id, position: desiredPosition },
-      sortedApplicationsList,
+      applicationList,
     );
     const { insertedItem, updatedItems } = updatedData;
     await this.jobApplicationRepo.save(updatedItems);
