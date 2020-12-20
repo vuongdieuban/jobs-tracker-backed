@@ -112,10 +112,10 @@ export class JobApplicationService {
   private async moveApplicationToTopOrBottomOfList(
     applicationToInsert: JobApplicationEntity,
     sortedApplicationsList: JobApplicationEntity[],
-    position: PositionTopOrBottom,
+    desiredPosition: PositionTopOrBottom,
   ): Promise<JobApplicationEntity> {
     const listLength = sortedApplicationsList.length;
-    if (position === 'top' || listLength === 0) {
+    if (desiredPosition === 'top' || listLength === 0) {
       return this.moveApplicationToSpecificPosition(applicationToInsert, sortedApplicationsList, 0);
     }
 
@@ -123,28 +123,25 @@ export class JobApplicationService {
     applicationToInsert.position = currentBottomApplication.position + SPACE_BETWEEN_ITEM;
 
     await this.jobApplicationRepo.save(applicationToInsert);
-
     return applicationToInsert;
   }
 
   private async moveApplicationToSpecificPosition(
     applicationToInsert: JobApplicationEntity,
     sortedApplicationsList: JobApplicationEntity[],
-    position: number,
+    desiredPosition: number,
   ): Promise<JobApplicationEntity> {
     const updatedData = this.reorderPositionService.moveItemInSameList<JobApplicationEntity>(
-      { id: applicationToInsert.id, position },
+      { id: applicationToInsert.id, position: desiredPosition },
       sortedApplicationsList,
     );
-
     const { insertedItem, updatedItems } = updatedData;
     await this.jobApplicationRepo.save(updatedItems);
-
     return insertedItem;
   }
 
   private async getApplicationById(applicationId: string): Promise<JobApplicationEntity> {
-    return this.jobApplicationRepo.findOneOrFail(applicationId).catch(() => {
+    return this.jobApplicationRepo.findOneOrFail(applicationId, { relations: ['status'] }).catch(() => {
       throw new NotFoundException(`Application with id ${applicationId} not found`);
     });
   }

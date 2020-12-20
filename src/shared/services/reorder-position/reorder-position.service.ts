@@ -45,7 +45,7 @@ export class ReorderPositionService {
 
     const updatedItems = this.calculateItemsPositionAfterInsertion(sortedItemList, insertIndex);
     return {
-      insertedItem: updatedItems[insertIndex] as T,
+      insertedItem: sortedItemList[insertIndex] as T,
       updatedItems: updatedItems as T[],
     };
   }
