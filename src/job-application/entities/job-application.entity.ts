@@ -1,7 +1,7 @@
 import { AbstractEntity } from 'src/shared/entities/abstract.entity';
-import { StatusEntity } from 'src/shared/entities/status.entity';
-import { JobPostEntity } from 'src/shared/entities/job-post.entity';
-import { UserEntity } from 'src/shared/entities/user.entity';
+import { StatusEntity } from 'src/status/entities/status.entity';
+import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
+import { UserEntity } from 'src/user/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 
 @Entity()

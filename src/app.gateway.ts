@@ -11,7 +11,7 @@ import { Socket } from 'socket.io';
 import { TokenService } from './auth/token.service';
 import { WebsocketAuthGuard } from './auth/websocket-auth.guard';
 import { JobApplicationEventsPublisher } from './job-application/job-application-events-publisher.service';
-import { UserEntity } from './shared/entities/user.entity';
+import { UserEntity } from './user/entities/user.entity';
 import { UserService } from './user/user.service';
 
 // NOTE: AuthGuard does not affect handleConnection, ie: have to handle auth logic in handlConnection

@@ -1,5 +1,5 @@
 import { AbstractEntity } from 'src/shared/entities/abstract.entity';
-import { PlatformEntity } from 'src/shared/entities/platform.entity';
+import { PlatformEntity } from 'src/platform/entities/platform.entity';
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 
 @Entity()

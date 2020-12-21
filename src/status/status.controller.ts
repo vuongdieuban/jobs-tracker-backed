@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { StatusEntity } from '../shared/entities/status.entity';
+import { StatusEntity } from './entities/status.entity';
 import { StatusService } from './status.service';
 
 @Controller('status')

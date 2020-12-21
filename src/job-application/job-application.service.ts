@@ -1,12 +1,12 @@
 import { BadGatewayException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { StatusEntity } from 'src/shared/entities/status.entity';
-import { JobPostEntity } from 'src/shared/entities/job-post.entity';
-import { UserEntity } from 'src/shared/entities/user.entity';
+import { StatusEntity } from 'src/status/entities/status.entity';
+import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
+import { UserEntity } from 'src/user/entities/user.entity';
 import { ReorderPositionService } from 'src/shared/services/reorder-position';
 import { Repository } from 'typeorm';
 import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
-import { JobApplicationEntity } from '../shared/entities/job-application.entity';
+import { JobApplicationEntity } from './entities/job-application.entity';
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
 import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';

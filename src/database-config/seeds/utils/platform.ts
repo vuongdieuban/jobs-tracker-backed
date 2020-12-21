@@ -1,4 +1,4 @@
-import { PlatformEntity } from 'src/shared/entities/platform.entity';
+import { PlatformEntity } from 'src/platform/entities/platform.entity';
 import { EntityManager } from 'typeorm';
 
 export async function platformSeed(manager: EntityManager): Promise<PlatformEntity> {

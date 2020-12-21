@@ -1,5 +1,5 @@
 import { Connection, EntitySubscriberInterface, EventSubscriber, InsertEvent } from 'typeorm';
-import { JobApplicationEntity } from 'src/shared/entities/job-application.entity';
+import { JobApplicationEntity } from 'src/job-application/entities/job-application.entity';
 
 @EventSubscriber()
 export class JobApplicationSubscriber implements EntitySubscriberInterface<JobApplicationEntity> {

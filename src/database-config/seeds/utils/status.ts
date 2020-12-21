@@ -1,4 +1,4 @@
-import { StatusEntity } from 'src/shared/entities/status.entity';
+import { StatusEntity } from 'src/status/entities/status.entity';
 import { EntityManager } from 'typeorm';
 
 export async function statusSeed(manager: EntityManager): Promise<StatusEntity[]> {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Subject } from 'rxjs';
-import { JobApplicationEntity } from '../shared/entities/job-application.entity';
+import { JobApplicationEntity } from './entities/job-application.entity';
 import { ApplicationEventName } from './constants/application-event-name.enum';
 import { ApplicationEvent } from './dto/websocket-response/application-event.type';
 import { ApplicationCreatedEvent } from './dto/websocket-response/created-event.dto';

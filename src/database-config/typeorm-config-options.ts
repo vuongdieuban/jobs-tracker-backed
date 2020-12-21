@@ -18,8 +18,8 @@ export const typeormConfigOptions: TypeOrmModuleOptions = {
   migrationsTableName: 'migration',
   migrations: ['dist/database-config/migrations/*.js'],
   cli: {
-    migrationsDir: 'src/database-config/migrations'
-  }
+    migrationsDir: 'src/database-config/migrations',
+  },
 };
 
 export const seedsConfigOptions: TypeOrmModuleOptions = {
@@ -28,6 +28,6 @@ export const seedsConfigOptions: TypeOrmModuleOptions = {
   migrationsTableName: 'seeds_migrations',
   migrations: ['dist/database-config/seeds/migrations/*.js'],
   cli: {
-    migrationsDir: 'src/database-config/seeds/migrations'
-  }
+    migrationsDir: 'src/database-config/seeds/migrations',
+  },
 };

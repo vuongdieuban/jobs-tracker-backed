@@ -1,5 +1,5 @@
-import { JobPostEntity } from 'src/shared/entities/job-post.entity';
-import { PlatformEntity } from 'src/shared/entities/platform.entity';
+import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
+import { PlatformEntity } from 'src/platform/entities/platform.entity';
 import { EntityManager } from 'typeorm';
 
 export async function jobPostsSeed(

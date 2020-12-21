@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Put, Req, UseGuards } from '@nestjs
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserRequest } from 'src/shared/interfaces/user-request.interface';
-import { JobApplicationEntity } from '../shared/entities/job-application.entity';
+import { JobApplicationEntity } from './entities/job-application.entity';
 import { ArchiveApplicationRequestDto } from './dto/request/archive-application-request.dto';
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';

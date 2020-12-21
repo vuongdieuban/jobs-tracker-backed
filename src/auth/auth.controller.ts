@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { CookieOptions, Request, Response } from 'express';
-import { UserEntity } from 'src/shared/entities/user.entity';
+import { UserEntity } from 'src/user/entities/user.entity';
 import { AuthService } from './auth.service';
 import { LoginRequestDto } from './dto/request/login-request.dto';
 import { LoginResponseDto } from './dto/response/login-response.dto';

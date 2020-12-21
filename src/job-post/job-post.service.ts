@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PlatformEntity } from 'src/shared/entities/platform.entity';
+import { PlatformEntity } from 'src/platform/entities/platform.entity';
 import { Repository } from 'typeorm';
-import { JobPostEntity } from '../shared/entities/job-post.entity';
+import { JobPostEntity } from './entities/job-post.entity';
 import { JobPostDto } from './dto/job-post.dto';
 
 @Injectable()

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PlatformEntity } from 'src/shared/entities/platform.entity';
-import { JobPostEntity } from '../shared/entities/job-post.entity';
+import { PlatformEntity } from 'src/platform/entities/platform.entity';
+import { JobPostEntity } from './entities/job-post.entity';
 import { JobPostController } from './job-post.controller';
 import { JobPostService } from './job-post.service';
 
