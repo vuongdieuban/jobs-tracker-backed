@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Subject } from 'rxjs';
-import { JobApplicationEntity } from './entities/job-application.entity';
-import { ApplicationEventName } from './constants/application-event-name.enum';
-import { ApplicationEvent } from './dto/websocket-response/application-event.type';
-import { ApplicationCreatedEvent } from './dto/websocket-response/created-event.dto';
-import { ApplicationReorderedEvent } from './dto/websocket-response/reordered-event.dto';
-import { ApplicationStatusChangedEvent } from './dto/websocket-response/status-changed-event.dto';
+import { ApplicationEventName } from '.';
+import { ApplicationEvent } from '../dto/websocket-response/application-event.type';
+import { ApplicationCreatedEvent } from '../dto/websocket-response/created-event.dto';
+import { ApplicationReorderedEvent } from '../dto/websocket-response/reordered-event.dto';
+import { ApplicationStatusChangedEvent } from '../dto/websocket-response/status-changed-event.dto';
+import { JobApplicationEntity } from '../entities/job-application.entity';
 
 @Injectable()
-export class JobApplicationEventsPublisher {
+export class JobApplicationPublisher {
   private readonly source = new Subject<ApplicationEvent>();
 
   get data$() {

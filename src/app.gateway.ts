@@ -10,7 +10,7 @@ import {
 import { Socket } from 'socket.io';
 import { TokenService } from './auth/token.service';
 import { WebsocketAuthGuard } from './auth/websocket-auth.guard';
-import { JobApplicationEventsPublisher } from './job-application/job-application-events-publisher.service';
+import { JobApplicationPublisher } from './job-application/pubsub';
 import { UserEntity } from './user/entities/user.entity';
 import { UserService } from './user/user.service';
 
@@ -24,7 +24,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly connectedSockets = new Map<string, Socket[]>();
 
   constructor(
-    private readonly applicationEventsPublisher: JobApplicationEventsPublisher,
+    private readonly applicationEventsPublisher: JobApplicationPublisher,
     private readonly tokenService: TokenService,
     private readonly userService: UserService,
   ) {
@@ -37,7 +37,13 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  handleDisconnect(client: Socket) {
+  @SubscribeMessage('msgToServer')
+  public handleMessage(client: Socket, payload: any): WsResponse<string> {
+    console.log('---------Client Payload-----------', payload);
+    return { event: 'msgToClient', data: 'Hello from server' };
+  }
+
+  public handleDisconnect(client: Socket) {
     // TODO: remove disconnected socket from connectedSockets with this client id
     this.logger.log('-------Client Disconnected------');
   }
@@ -54,12 +60,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         message: err.message,
       });
     }
-  }
-
-  @SubscribeMessage('msgToServer')
-  handleMessage(client: Socket, payload: any): WsResponse<string> {
-    console.log('---------Client Payload-----------', payload);
-    return { event: 'msgToClient', data: 'Hello from server' };
   }
 
   private async authenticateConnection(client: Socket): Promise<UserEntity> {

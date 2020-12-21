@@ -5,10 +5,9 @@ import { JobPostEntity } from 'src/job-post/entities/job-post.entity';
 import { SharedModule } from 'src/shared/shared.module';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { JobApplicationEntity } from './entities/job-application.entity';
-import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';
 import { JobApplicationController } from './job-application.controller';
 import { JobApplicationService } from './job-application.service';
-import { JobApplicationSubscriber } from './subscribers/job-application.subscriber';
+import { JobApplicationPublisher, JobApplicationSubscriber } from './pubsub';
 
 @Module({
   imports: [
@@ -16,7 +15,7 @@ import { JobApplicationSubscriber } from './subscribers/job-application.subscrib
     SharedModule,
   ],
   controllers: [JobApplicationController],
-  providers: [JobApplicationService, JobApplicationEventsPublisher, JobApplicationSubscriber],
-  exports: [JobApplicationEventsPublisher],
+  providers: [JobApplicationService, JobApplicationPublisher, JobApplicationSubscriber],
+  exports: [JobApplicationPublisher],
 })
 export class JobApplicationModule {}

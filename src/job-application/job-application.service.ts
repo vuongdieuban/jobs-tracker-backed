@@ -9,15 +9,15 @@ import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 import { JobApplicationEntity } from './entities/job-application.entity';
 import { CreateApplicationRequestDto } from './dto/request/create-application-request.dto';
 import { ReorderApplicationRequestDto } from './dto/request/reorder-application-request.dto';
-import { JobApplicationEventsPublisher } from './job-application-events-publisher.service';
 import { PositionTopOrBottom } from './types';
 import { SPACE_BETWEEN_ITEM } from 'src/shared/constants';
+import { JobApplicationPublisher } from './pubsub';
 
 @Injectable()
 export class JobApplicationService {
   constructor(
     private readonly reorderPositionService: ReorderPositionService,
-    private readonly eventsPublisher: JobApplicationEventsPublisher,
+    private readonly eventsPublisher: JobApplicationPublisher,
     @InjectRepository(JobApplicationEntity)
     private readonly jobApplicationRepo: Repository<JobApplicationEntity>,
     @InjectRepository(StatusEntity)
