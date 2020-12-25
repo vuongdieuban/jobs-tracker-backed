@@ -10,7 +10,7 @@ import { ApplicationReorderedResponseDto } from './dto/response';
 import { ApplicationUpdatedResponseDto } from './dto/response/application-updated-response.dto';
 import { JobApplicationService } from './job-application.service';
 
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('job-application')
 @ApiTags('job-application')
 export class JobApplicationController {

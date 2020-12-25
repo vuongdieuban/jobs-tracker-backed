@@ -6,10 +6,17 @@ import { ApplicationCreatedEvent } from '../dto/websocket-response/created-event
 import { ApplicationReorderedEvent } from '../dto/websocket-response/reordered-event.dto';
 import { ApplicationStatusChangedEvent } from '../dto/websocket-response/status-changed-event.dto';
 import { JobApplicationEntity } from '../entities/job-application.entity';
+import { JobApplicationSubscriber } from './job-application.subscriber';
 
 @Injectable()
 export class JobApplicationPublisher {
   private readonly source = new Subject<ApplicationEvent>();
+
+  constructor(private readonly subscriber: JobApplicationSubscriber) {
+    this.subscriber.data$.subscribe(data => {
+      console.log('Listen data from Publisher', data);
+    });
+  }
 
   get data$() {
     return this.source.asObservable();

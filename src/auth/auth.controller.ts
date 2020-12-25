@@ -75,7 +75,7 @@ export class AuthController {
   private getCookieOptions(): CookieOptions {
     // const localEnv = process.env.NODE_ENV === 'development';
     return {
-      domain: '.jobs-tracker.localhost', // TODO: Change to prod url
+      domain: '.localhost', // TODO: Change to prod url
       sameSite: 'none',
       secure: true,
       httpOnly: true,

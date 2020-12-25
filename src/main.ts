@@ -23,7 +23,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   const options = new DocumentBuilder()
-    .setTitle('Verification Service API Documentation')
+    .setTitle('API Documentation')
     .setDescription('')
     .setVersion('')
     .build();
