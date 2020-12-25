@@ -73,11 +73,10 @@ export class AuthController {
   }
 
   private getCookieOptions(): CookieOptions {
-    // const localEnv = process.env.NODE_ENV === 'development';
+    const localEnv = process.env.NODE_ENV === 'development';
     return {
-      domain: '.localhost', // TODO: Change to prod url
-      sameSite: 'none',
-      secure: true,
+      sameSite: 'lax',
+      secure: !localEnv,
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     };
